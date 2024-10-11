@@ -7,11 +7,11 @@ You don't want to pay SurveyMonkey or SurveyMonster to create surveys for your c
 
 Then **SurveyFriend** is your friend:
 
-- SurveyFriend is a simple PHP script that allows you to create surveys and store responses.
+- SurveyFriend is a simple **PHP script** that allows you to create surveys and store responses.
 
-- It's easy to use and requires no database.
+- It's easy to use and requires **no database**.
 
-- You can easily configure your surveys using a JSON file.
+- You can easily configure your surveys **using a JSON file**.
 
 ## Prompt for ChatGPT or Perplexity AI to create new surveys from scratch:
 
