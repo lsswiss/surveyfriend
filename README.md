@@ -1,7 +1,7 @@
 # surveyFriend
 Tool to create Online Surveys with the help of JSON files, based on Bootstrap.
 
-# Create Surveys for Your Customer Journeys for Free!
+## Create Surveys for Your Customer Journeys for Free!
 
 You don't want to pay SurveyMonkey or SurveyMonster to create surveys for your customer journeys.
 
@@ -15,7 +15,7 @@ Then **SurveyFriend** is your friend:
 
 ## Prompt for ChatGPT or Perplexity AI to create new surveys from scratch:
 
-  # ChatGPT
+  ### ChatGPT
   
   ```
   Create a JSON for a hotel survey, following the definitions here
