@@ -20,7 +20,7 @@ Then **SurveyFriend** is your friend:
   ```
   Create a JSON for a Hotel survey, following the definitions here
   |||
-  [[paste content of `survey.json` here]]
+  [[paste content of `httpdocs/survey.json` here]]
   ```
 
   *Note*: Change the word `Hotel` to whatever you need.
