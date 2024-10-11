@@ -15,8 +15,8 @@ Then **SurveyFriend** is your friend:
 
 ## Prompt for ChatGPT or Perplexity AI to create new surveys from scratch:
 
-  `
+  ```
   **ChatGPT:** Create a JSON for a hotel survey, following the definitions here ||| [[insert survey.json here]]
-  `
+  ```
 
   *Note*: Change the word ^Hotel^ to whatever you want.
