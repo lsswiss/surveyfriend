@@ -23,4 +23,4 @@ Then **SurveyFriend** is your friend:
   [[insert survey.json here]]
   ```
 
-  *Note*: Change the word `Hotel` to whatever you want.
+  *Note*: Change the word `Hotel` to whatever you need.
