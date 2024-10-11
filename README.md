@@ -18,9 +18,9 @@ Then **SurveyFriend** is your friend:
   ### ChatGPT
   
   ```
-  Create a JSON for a hotel survey, following the definitions here
+  Create a JSON for a Hotel survey, following the definitions here
   |||
   [[insert survey.json here]]
   ```
 
-  *Note*: Change the word ^Hotel^ to whatever you want.
+  *Note*: Change the word `Hotel` to whatever you want.
