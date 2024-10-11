@@ -1,0 +1,157 @@
+[
+  {
+    "q": "Danke, dass Sie im Hotel Jakarta übernachtet haben.",
+    "desc": "Wir freuen uns über Ihr Feedback.",
+    "background-image": "assets/abusiness.webp",
+    "a": {
+      "button": [
+        {
+          "label": "Bewertung starten",
+          "value": 0,
+          "class": "btn-primary btn-lg col-6 mx-auto"
+        }
+      ]
+    }
+  },
+  {
+    "q": "Wie zufrieden sind Sie mit Ihrem Aufenthalt im Hotel?",
+    "desc": "Bitte bewerten Sie Ihre Zufriedenheit auf einer Skala von 1 bis 5.",
+    "background-image": "assets/hotel_satisfaction.webp",
+    "a": {
+      "option": [
+        {
+          "label": "1 - Sehr unzufrieden",
+          "value": 1
+        },
+        {
+          "label": "2 - Unzufrieden",
+          "value": 2
+        },
+        {
+          "label": "3 - Neutral",
+          "value": 3
+        },
+        {
+          "label": "4 - Zufrieden",
+          "value": 4
+        },
+        {
+          "label": "5 - Sehr zufrieden",
+          "value": 5
+        }
+      ]
+    }
+  },
+  {
+    "q": "Welche Annehmlichkeiten haben Sie genutzt?",
+    "desc": "",
+    "background-image": "assets/hotel_amenities.webp",
+    "a": {
+      "multioption": [
+        {
+          "label": "Pool",
+          "value": 1
+        },
+        {
+          "label": "Fitnessstudio",
+          "value": 2
+        },
+        {
+          "label": "Spa",
+          "value": 3
+        },
+        {
+          "label": "Restaurant",
+          "value": 4
+        },
+        {
+          "label": "WLAN",
+          "value": 5
+        }
+      ]
+    }
+  },
+  {
+    "q": "Wie fanden Sie unseren Service?",
+    "desc": "Bitte teilen Sie uns Ihr Feedback mit.",
+    "background-image": "assets/hotel_service.webp",
+    "a": {
+      "option": [
+        {
+          "label": "Exzellent",
+          "value": 5
+        },
+        {
+          "label": "Gut",
+          "value": 4
+        },
+        {
+          "label": "Befriedigend",
+          "value": 3
+        },
+        {
+          "label": "Ausreichend",
+          "value": 2
+        },
+        {
+          "label": "Mangelhaft",
+          "value": 1
+        }
+      ]
+    }
+  },
+  {
+    "q": "Wie viele Nächte haben Sie in unserem Hotel verbracht?",
+    "desc": "",
+    "background-image": "assets/hotel_nights.webp",
+    "a": {
+      "label": "Anzahl Nächte",
+      "range": {
+        "min": 1,
+        "max": 30,
+        "step": 1,
+        "default": 2,
+        "prefix": "Anzahl Nächte: ",
+        "suffix": "",
+        "format": "number"
+      }
+    }
+  },
+  {
+    "q": "Wie viel haben Sie für Ihren Aufenthalt insgesamt ausgegeben?",
+    "desc": "Bitte geben Sie den Betrag in CHF an.",
+    "background-image": "assets/hotel_cost.webp",
+    "a": {
+      "label": "Betrag in CHF",
+      "range": {
+        "min": 0,
+        "max": 10000,
+        "step": 100,
+        "default": 500,
+        "prefix": "",
+        "suffix": " CHF",
+        "format": "currency"
+      }
+    }
+  },
+  {
+    "q": "Wie können wir Sie kontaktieren?",
+    "background-image": "assets/hotel_contact.webp",
+    "a": {
+      "fields": [
+        {
+          "text": {
+            "label": "Mein Name ist",
+            "required": true
+          }
+        },
+        {
+          "text": {
+            "label": "Meine E-Mail ist",
+            "required": true
+          }
+        }
+      ]
+    }
+  }
+]

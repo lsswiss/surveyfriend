@@ -1,0 +1,37 @@
+{
+	"folders": [
+		{
+			"path": "./httpdocs",
+			"name": "langmeier-software.com"			
+		}
+	],
+	"settings": {
+        // Disabling @builtin php language features:
+		// Note: this is not supported by vscode right now
+		// "vscode.php-language-features": false,
+		
+		// Intelephense settings
+		"intelephense.files.associations": [
+			"*.php"
+		],
+		"intelephense.files.exclude": [
+			"**/node_modules/**",
+			"**/vendor/**/Tests/**"
+		],
+		"intelephense.environment.includePaths": [
+			"../vendor/"
+		]		
+
+    },
+	"extensions": {
+		"recommendations": [
+			"alefragnani.bookmarks"
+			,"bmewburn.vscode-intelephense-client"
+			,"ionutvmi.path-autocomplete"
+			,"mrmlnc.vscode-apache"
+			,"trixnz.go-to-method"
+			,"zignd.html-css-class-completion"
+			,"ecmel.vscode-html-css"
+		]
+	}
+}

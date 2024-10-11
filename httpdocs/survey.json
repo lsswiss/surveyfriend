@@ -1,0 +1,136 @@
+[
+	{
+		"q": "Die meisten Anwender sparen <strong>jährlich über 15'000 Franken</strong>.",
+		"desc": "Jetzt prüfen, wieviel Geld ich sparen kann",
+		"a": {
+			"button": [
+				{
+					"label": "Jetzt Sparpotenzial berechnen",
+					"value": 0,
+          			"class": "btn-primary btn-lg float-end mx-auto d-block"
+				}
+			]
+		},
+		"background-image": "assets/abusiness.webp"
+	},
+
+	{
+	  "q": "Welche Software nutzt Du derzeit?",
+	  "desc": "",
+	  "background-image": "assets/abusiness.webp",
+	  "a": {
+		"multioption": [
+		  {
+			"label": "Online-Terminplaner (z.B. Book-Like-a-Boss)",
+			"value": 12
+		  },
+		  {
+			"label": "E-Mail-Marketing-Lösung (z.B. Mailchimp)",
+			"value": 299
+		  },
+		  {
+			"label": "Rechnungs- und Buchhaltungsprogramm (z.B. Bexio)",
+			"value": 39
+		  },
+		  {
+			"label": "CRM-Software (z.B. PipeDrive, SugarCRM, Odoo)",
+			"value": 49.90
+		  },
+		  {
+			"label": "Community-Management-Lösung (z.B. Slack)",
+			"value": 12
+		  },
+		  {
+			"label": "Cloud-Speicher (z.B. Dropbox)",
+			"value": 12
+		  },
+		  {
+			"label": "Task-, Workflow- und Projekt-Management (z.B. Trello)",
+			"value": 17.50
+		  },
+		  {
+			"label": "Ticket-System (z.B. Freshdesk)",
+			"value": 9
+		  }
+		]
+	  }
+	},
+
+	{
+	  "q": "Nutzt Du Linkedin Sales Navigator?",
+	  "desc": "Oder andere Lead-Marketing-Software?",
+	  "background-image": "assets/abusiness.webp",
+	  "a": {
+		"option": [
+		  {
+			"label": "Ja",
+			"value": 120
+		  },
+		  {
+			"label": "Nein",
+			"value": 0
+		  },
+		  {
+			"label": "Später",
+			"value": 90
+		  }
+		]
+	  }
+	},
+
+	{
+		"q": "Wieviele Mitarbeitende nutzen die zuvor angegebenen Software-Lösungen?",
+		"desc": "",
+		"background-image": "assets/abusiness.webp",
+		"a": {
+			"label": "Anzahl Mitarbeitende",
+			"range": {
+				"min": 1,
+				"max": 20,
+				"step": 1,
+				"default":10,
+				"prefix": "Anzahl Mitarbeitende: ",
+				"suffix": "",
+				"format": "number"				
+			}
+		}
+	},
+
+	{
+	"q": "Wieviel gibst Du monatlich für die Führung deiner Buchhaltung aus?",
+	"desc": "Ohne Jahres-Abschluss",
+	"background-image": "assets/abusiness.webp",
+	"a": {
+	  "label": "Betrag in CHF",
+	  "range": {
+		"min": 0,
+		"max": 10000,
+		"step": 100,
+		"default": 500,
+		"prefix": "",
+		"suffix": " CHF",
+		"format": "currency"
+	  }
+	}
+	},
+	{
+	"q": "Wie können wir mit Dir in Kontakt treten?",
+	"background-image": "assets/abusiness.webp",
+	"a": {
+	  "fields": [
+		{
+		  "text": {
+			"label": "Mein Name ist",
+			"required": false
+		  }
+		},
+		{
+		  "text": {
+			"label": "Meine E-Mail ist",
+			"required": false
+		  }
+		}
+	  ]
+	}
+	}
+]
