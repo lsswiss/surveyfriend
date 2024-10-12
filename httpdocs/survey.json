@@ -7,7 +7,7 @@
 				{
 					"label": "Jetzt Sparpotenzial berechnen",
 					"value": 0,
-          			"class": "btn-primary btn-lg float-end mx-auto d-block"
+          			"class": "btn-primary btn-lg btn-danger /*float-end*/ mx-auto d-block"
 				}
 			]
 		},

@@ -1,11 +1,17 @@
 <?php
-// Pfad zur JSON-Datei
-$jsonFile = 'charts/chart.json';
 
-// JSON-Datei einlesen
-$jsonData = file_get_contents($jsonFile);
-$charts = json_decode($jsonData, true);
+    // Pfad zur JSON-Datei
+    $jsonFile = 'charts/chart.json';
 
+    // JSON-Datei einlesen
+    $jsonData = file_get_contents($jsonFile);
+    $charts = json_decode($jsonData, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        die('Fehler beim Lesen der JSON-Datei. Bitte überprüfen Sie die Datei: ' . $jsonFile);
+    }
+
+    require_once('modules/mainfunctions.php');
 ?>
 
 <!DOCTYPE html>
@@ -24,7 +30,7 @@ $charts = json_decode($jsonData, true);
         }
     </style>
 </head>
-<body>
+<body class="charts">
 
 <div class="container mt-5">
     
@@ -42,9 +48,19 @@ $charts = json_decode($jsonData, true);
                 if ( $blnHasImage ) {
                     // Kein Chart, aber ein Bild vorhanden
                     // Wir rendern also ein Bild mit Text
-                    $textClass = "col-md-8 float-right d-flex align-items-center";
+                    $textClass = "col-md-8 float-right align-items-center";
                     $imageClass = "col-md-4 float-left";
+                } else {
+                    // Kein Chart und kein Bild vorhanden
+                    // Wir rendern also nur Text
+                    $textClass = "col-md-12";
+                    $imageClass = "";
                 }
+            } else {
+                // Ein Chart ist vorhanden
+                // Wir rendern also ein Chart mit Text
+                $textClass = "col-md-12";
+                $imageClass = "";
             }
             ?>
             <div class="card mb-4">
@@ -57,8 +73,16 @@ $charts = json_decode($jsonData, true);
                         $imageURL = $chartSection['section']['image'] ?? null;
                         $imageAltText = $chartSection['section']['image-alt'] ?? null;
                         $imageClass = $chartSection['section']['image-class'] ?? "img-fluid";
+
+                        if ( isset($imageURL) ) {
+                            // Bild vorhanden, also Text links und Bild rechts
+                            // und Text sowie Bild vertikal zentriert:
+                            $classJustifyContentToTheMiddle = "d-flex align-items-center justify-content-between";
+                        } else {
+                            $classJustifyContentToTheMiddle = "";
+                        }
                     ?>
-                    <div class="row">
+                    <div class="row <?php echo $classJustifyContentToTheMiddle; ?>">
                         <?php if (isset($imageURL)): ?>
                             <div class="col <?php echo $imageClass; ?>">
                                 <img src="<?php echo $imageURL; ?>"
@@ -67,10 +91,14 @@ $charts = json_decode($jsonData, true);
                                 >
                             </div>
                         <?php endif; ?>                        
-                        <div class="col <?php echo($textClass); ?>"
+                        <div class="col <?php echo($textClass)??""; ?>"
                         >
-                            <h2 class="card-title><?php echo $chartSection['section']['title']??""; ?></h2>
-                            <p class="card-text"><?php echo $chartSection['section']['desc']??""; ?></p>
+                            <h2 class="card-title "><?php echo $chartSection['section']['title']??""; ?></h2>
+                            <h4 class="card-text "><?php echo $chartSection['section']['desc']??""; ?></h4>
+                            
+                           
+
+
                         </div>
                     </div>
 
@@ -151,15 +179,43 @@ $charts = json_decode($jsonData, true);
             // Rendern von hier möglichen Elementen im Root:
             // Hintergrundbild:
             $backgroundImage = $chartSection['background-image'] ?? null;
+            $backgroundClass = $chartSection['background'] ?? null;
+
+            // Logo:
+            $logo = $chartSection['logo'] ?? null;
+
             // Titel:
             $title = $chartSection['title'] ?? null;
             // Class des übergeordneten Titels:
             $titleClass = $chartSection['class'] ?? "text-center";
+
+            // CI Farben:
+            $primaryColor = $chartSection['ci-color'] ?? null;
+            if ($primaryColor != null) : ?>
+                <style>
+                    :root {
+                        --ci-primary-color: <?php echo $primaryColor; ?>;
+                        --dark-blend-color: <?php echo hexToRgba($primaryColor, 0.6); ?>;
+                    }
+                </style>
+            <?php endif;
+            
+
+
         ?>
 
         <?php if ($backgroundImage != ""): ?>
-            <div class="survey background-image" 
+            <div class="survey background-image <?php echo $backgroundClass; ?>" 
                     style="background-image: url('<?php echo $backgroundImage; ?>');">
+            </div>
+        <?php endif; ?>
+
+        <?php if ($logo != ""): ?>
+            <div class="survey logo">
+                    <img src="<?php echo $logo; ?>" 
+                            class="img-fluid col-md-3"
+                            alt="Logo"
+                    >
             </div>
         <?php endif; ?>
 
@@ -179,3 +235,4 @@ $charts = json_decode($jsonData, true);
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
+

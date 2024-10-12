@@ -1,3 +1,37 @@
+:root {
+    --ci-primary-color: rgb(28, 71, 199);
+    --ci-secondary-color: orange;
+
+    --primary-color: var(--ci-primary-color);
+    --secondary-color: var(--ci-secondary-color);
+
+    --dark-color: var(--ci-primary-color);
+    --light-color: #ffffff;
+
+    --dark-blend-color: rgba(28, 71, 199, 0.6);
+    
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-bg-color: #f8f9fa;
+    --dark-bg-color: #343a40;
+    --primary-bg-color: #007bff;
+    --secondary-bg-color: #6c757d;
+    --success-bg-color: #28a745;
+    --info-bg-color: #17a2b8;
+    --warning-bg-color: #ffc107;
+    --danger-bg-color: #dc3545;
+    --light-text-color: #f8f9fa;
+    --dark-text-color: #343a40;
+    --primary-text-color: #007bff;
+    --secondary-text-color: #6c757d;
+    --success-text-color: #28a745;
+    --info-text-color: #17a2b8;
+    --warning-text-color: #ffc107;
+    --danger-text-color: #dc3545;
+}
+
 body.survey {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -7,6 +41,14 @@ body.survey {
     height: 100vh;
     margin: 0;
     overflow: hidden;
+}
+body.charts {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 0 75px 0;
 }
 
 .survey label {
@@ -34,6 +76,10 @@ body.survey {
     padding:0;
     left: 0;
     top: 0;    
+}
+
+.survey button, .charts button {
+    margin: 35px 0px 0px;
 }
 
 .range-slider-container {
@@ -88,6 +134,17 @@ body.survey {
 
 .float-left {
     float: left;
+}
+
+.dark-blend {
+    background-blend-mode: darken;
+    background-color: var(--dark-blend-color);
+    color:var(--light-text-color);
+}
+.light-blend {
+    background-blend-mode: lighten;
+    background-color: rgba(255,255,255,0.6);
+    color:var(--dark-text-color);
 }
 
 

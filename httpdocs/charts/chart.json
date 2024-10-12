@@ -1,7 +1,9 @@
 [ 
     {
-        "background-image": "/assets/abusiness.webp",
-        "logo": "/assets/logo.png",
+        "background-image": "/assets/bg-blue.png",
+        "background": "dark-blend",
+        "ci-color": "#0776bf",
+        "logo": "/assets/logo-i.png",
         "title": "Deine Ersparnis mit aBusiness Suite",
         "class": "text-white text-center"
 
@@ -58,9 +60,9 @@
 
     {
         "section": {
-            "title": "Deine jährliche Ersparnis",
+            "title": "Deine jährliche Ersparnis, wenn dein Geschäft aBusiness Suite verwenden würde: <strong>85,618.-- Schweizer Franken</strong>",
             "class": "",
-            "desc": "Deine jährliche Ersparnis, wenn dein Geschäft aBusiness Suite verwenden würde: <strong>85,618.-- Schweizer Franken</strong>!",
+            "desc": "<h4>Mehrere Schweizer Unternehmen wie Deines haben dieses Sparpotential bereits entdeckt.</h4>",
             "image": "/assets/savings.png",
             "image-alt": "Ersparnisse dank aBusiness Suite",
             "image-class": "col-md-4"
@@ -86,8 +88,32 @@
             }
 
         }
-    }
+    },
 
- 
+    {
+        "section":{
+            "title": "Gut zu wissen:",
+            "desc": "<p>aBusiness Suite ist eine All-in-One-Software-Lösung für KMU und Selbständige, die alle wichtigen Funktionen in einem einzigen Programm vereint.</p><ul><li><p>aBusiness-Anwender sparen bis zu 90% ihrer Buchhaltungs-Kosten dank KI-automatisierter Buchführung.</p></li><li><p>Du bezahlst aktuell mindestens 34.-- pro Monat für deine verschiedenen im Einsatz befindlichen Software-Lösungen.</p></li><li><p>Würdest Du aBusiness Suite einsetzen, dann würdest Du für alle Benutzer zusammen nur noch 8.-- pro Tag bezahlen, und Du würdest künftig für Software-Lösungen viel Geld sparen, da aBusiness verschiedene Software-Lösungen in einem einzigen Programm vereint.</p></li><li><p>Erziele unschätzbare Zeitgewinne, dank der in der Software integrierten und zahlreichen internen Verknüpfungen, die das rasche Teilen von Informationen über alle Abteilungen hinweg ermöglichen.</p></li></ul>"
+        }
+    
+    },
+
+    {
+        "section":{
+            "title": "Lust auf die kostenlose Probe-Version von aBusiness?",
+            "desc": "Jetzt kostenlos ausprobieren und Geld sparen",
+            "class": "text-center",
+            "button": [
+                {
+                    "label": "aBusiness jetzt kostenlos testen",
+                    "url": "https://www.abusiness.one",
+                    "class": "btn-success btn-lg mx-auto d-block"
+                }
+            ]
+
+        }
+
+    }
+    
  
 ]
