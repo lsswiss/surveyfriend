@@ -1,0 +1,85 @@
+[ 
+    {
+        "background-image": "assets/abusiness.webp",
+        "title": "Einsparungen und Umsatzentwicklung"
+    },
+
+    {
+        "section": {
+            "title": "So viel Geld sparst Du im Vergleich zum Mitbewerb",
+            "desc": "Andere Unternehmen geben im Vergleich zu dir aus...",
+            "class": "",
+
+            "chart": {
+                "type": "pie",
+                "title": null,
+                "data": {
+                    "labels": ["Ihr Unternehmen", "Unternehmen ohne SaaS-Lösungen"],
+                    "datasets": [{
+                        "label": "Kosten monatlich",
+                        "data": [500, 4500]
+                    }]
+                }
+            }
+        }
+
+    },
+
+    {
+        "section": {
+            "title": "So viel Geld sparst Du, wenn Dein Unternehmen auf aBusiness Suite setzt:",
+            "desc": "Monatliche Kosten mit und ohne aBusiness Suite",
+            "class": "",
+
+            "chart": {
+                "type": "bar",
+                "title": null,
+                "data": {
+                    "labels": ["Mit aBusiness", "Ohne aBusiness"],
+                    "datasets": [{
+                        "label": "Kosten monatlich",
+                        "data": [500, 4500]
+                    }]
+                }
+            },
+
+            "button": [
+				{
+					"label": "aBusiness jetzt kostenlos testen",
+                    "url": "https://www.abusiness.one",
+          			"class": "btn-success btn-lg mx-auto d-block"
+				}
+			]
+        }
+    },
+
+    {
+        "section": {
+            "title": "Deine jährliche Ersparnis, wenn dein Geschäft aBusiness Suite verwenden würde:  85,618.-- Schweizer Franken / oder Euro!"
+        }
+    },
+
+    {
+        "section": {
+            "title": "Deine potentielle Umsatzentwicklung mit aBusiness",
+            "desc": "",
+            "class": "",
+
+            "chart": {
+                "type": "line",
+                "title": null,
+                "data": {
+                    "labels": ["Ihr Unternehmen", "Unternehmen ohne SaaS-Lösungen"],
+                    "datasets": [{
+                        "label": "Umsatz monatlich",
+                        "data": [500, 4500]
+                    }]
+                }
+            }
+
+        }
+    }
+
+ 
+ 
+]

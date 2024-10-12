@@ -7,7 +7,7 @@ $fileSurvey = "survey.json";
 //$fileSurvey = 'hotel-survey.json';
 
 
-// Start der Sitzung:
+// Start der survey-Sitzung:
 session_start();
 
 // Survey-Datei einlesen:

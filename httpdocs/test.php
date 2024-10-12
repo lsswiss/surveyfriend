@@ -1,102 +1,170 @@
-<?php
-session_start();
-
-// Survey laden
-$survey = json_decode(file_get_contents('survey.json'), true);
-
-// Aktuelle Frage bestimmen
-$current_question = isset($_SESSION['current_question']) ? $_SESSION['current_question'] : 0;
-$answers = isset($_SESSION['answers']) ? $_SESSION['answers'] : [];
-
-// Weiter oder Zurück
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['next'])) {
-        // Antwort speichern
-        $answers[$current_question] = $_POST['answer'] ?? null;
-        $_SESSION['answers'] = $answers;
-
-        // Zur nächsten Frage
-        if ($current_question < count($survey) - 1) {
-            $_SESSION['current_question'] = ++$current_question;
-        }
-    } elseif (isset($_POST['prev'])) {
-        // Zurück zur vorherigen Frage
-        if ($current_question > 0) {
-            $_SESSION['current_question'] = --$current_question;
-        }
-    }
-}
-
-// Berechnen der Gesamtpunkte
-if ($current_question == count($survey)) {
-    $total = 0;
-    foreach ($answers as $key => $answer) {
-        if (is_numeric($answer)) {
-            $total += $answer;
-        }
-    }
-
-    // Zusammenfassung anzeigen
-    echo "<div class='container mt-5'><h2>Zusammenfassung</h2>";
-    foreach ($survey as $index => $question) {
-        echo "<p><strong>Frage: </strong>{$question['q']}</p>";
-        echo "<p><strong>Antwort: </strong>{$answers[$index]}</p>";
-    }
-    echo "<h3>Gesamtpunkte: $total</h3></div>";
-    session_destroy();
-    exit();
-}
-
-// Aktuelle Frage
-$question = $survey[$current_question];
-?>
-
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survey</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Umfrageresultat</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2><?php echo $question['q']; ?></h2>
-        <?php if (!empty($question['desc'])): ?>
-            <p><?php echo $question['desc']; ?></p>
-        <?php endif; ?>
 
-        <form method="POST">
-            <?php if (isset($question['a']['option'])): ?>
-                <?php foreach ($question['a']['option'] as $option): ?>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="answer" id="option<?php echo $option['value']; ?>" value="<?php echo $option['value']; ?>" required>
-                        <label class="form-check-label" for="option<?php echo $option['value']; ?>">
-                            <?php echo $option['label']; ?>
-                        </label>
-                    </div>
-                <?php endforeach; ?>
-            <?php elseif (isset($question['a']['range'])): ?>
-                <label for="rangeInput"><?php echo $question['a']['label']; ?></label>
-                <input type="number" id="rangeInput" name="answer" class="form-control" min="<?php echo $question['a']['range']['min']; ?>" max="<?php echo $question['a']['range']['max']; ?>" step="<?php echo $question['a']['range']['step']; ?>" required>
-            <?php elseif (isset($question['a']['fields'])): ?>
-                <?php foreach ($question['a']['fields'] as $field): ?>
-                    <div class="mb-3">
-                        <label for="field<?php echo $field['text']['label']; ?>" class="form-label"><?php echo $field['text']['label']; ?></label>
-                        <input type="text" class="form-control" id="field<?php echo $field['text']['label']; ?>" name="answer" <?php echo $field['text']['required'] ? 'required' : ''; ?>>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
+    <!-- Canvas für das Diagramm -->
+    <canvas id="myChart" width="400" height="400"
+        style="max-height: 300px;"
+        ></canvas>
 
-            <div class="mt-3">
-                <?php if ($current_question > 0): ?>
-                    <button type="submit" name="prev" class="btn btn-secondary">Zurück</button>
-                <?php endif; ?>
-                <button type="submit" name="next" class="btn btn-primary">Weiter</button>
-            </div>
-        </form>
-    </div>
+    <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'bar', // Ändere 'bar' zu 'pie' für ein Kuchendiagramm oder 'line' für ein Liniendiagramm
+            data: {
+                labels: ['Programmierer', 'Buchhalter', 'Sekretäre', 'Lehrer', 'Fluglehrer', 'Piloten'],
+                datasets: [{
+                    label: 'Gehalt in Tsd. €',
+                    data: [12, 19, 3, 5, 2, 3],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 206, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(153, 102, 255, 0.8)',
+                        'rgba(255, 159, 64, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: true,  // Gitterlinien anzeigen oder ausblenden
+                            color: 'rgba(0, 0, 0, 0.1)',  // Gitterlinienfarbe
+                            lineWidth: 2  // Dicke der Gitterlinien
+                        },
+                        ticks: {
+                            color: 'blue',  // Farbe der Achsenwerte
+                            font: {
+                                size: 14  // Größe der Achsenbeschriftung
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false  // X-Achse Gitterlinien ausblenden
+                        }
+                    }
+                }
+                ,  animation: {
+                    duration: 200,  // Länge der Animation in ms
+                    easing: 'easeInBounce',  // Art der Animation
+                }
+                ,tooltip: {
+                    enabled: true,  // Tooltip aktivieren/deaktivieren
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',  // Hintergrundfarbe des Tooltips
+                    titleColor: '#ffffff',  // Textfarbe des Titels
+                    bodyColor: '#ffcc00',  // Textfarbe des Inhalts
+                    padding: 10,  // Abstand im Tooltip
+                    cornerRadius: 4  // Abgerundete Ecken
+                }
+                ,responsive: true  // Diagramm passt sich der Fenstergröße an
+                ,maintainAspectRatio: true  // Seitenverhältnis des Diagramms ignorieren
+                ,plugins: {
+                    legend: {
+                        display: false,  // Legende anzeigen oder ausblenden
+                        position: 'bottom',  // Position: 'top', 'bottom', 'left', 'right'
+                        labels: {
+                            boxWidth: 20,  // Größe des Farbquadrats
+                            padding: 10,   // Abstand zwischen den Elementen
+                        }
+                    }
+                }
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+                
+            }
+        });
+    </script>
+
+
+<canvas id="myPieChart" width="400" height="400"></canvas>
+
+    <script>
+        // Schritt 2: Erstellen des Kuchendiagramms
+        var ctx = document.getElementById('myPieChart').getContext('2d');
+        const myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Ihr Unternehmen', 'Unternehmen ohne Software', 'Unternehmen mit Software', 'Unternehmen mit SaaS-Lösungen'],
+                datasets: [{
+                    label: 'Umsatz in Tsd.',
+                    data: [12, 19, 3, 50]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Kuchendiagramm Beispiel'
+                    }
+                }
+            }
+        });
+    </script>
+
+
+<canvas id="myPieChart2" width="400" height="400"></canvas>
+<script>
+    // JSON-Daten
+    const data = {
+        "section": {
+            "title": "So viel Geld sparst Du im Vergleich zum Mitbewerb",
+            "desc": "Andere Unternehmen geben im Vergleich zu dir aus...",
+            "chart": {
+                "type": "pie",
+                "data": {
+                    "labels": ["Ihr Unternehmen", "Unternehmen ohne SaaS-Lösungen"],
+                    "datasets": [{
+                        "label": "Kosten monatlich",
+                        "data": [500, 4500],
+                        "backgroundColor": ['#36A2EB', '#FF6384'],
+                    }]
+                }
+            }
+        }
+    };
+
+    // Chart.js Initialisierung
+    var ctx = document.getElementById('myPieChart2').getContext('2d');
+    const myPieChart2 = new Chart(ctx, {
+        type: data.section.chart.type,
+        data: data.section.chart.data,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: data.section.title,
+                }
+            }
+        }
+    });
+</script>
+
 </body>
 </html>
