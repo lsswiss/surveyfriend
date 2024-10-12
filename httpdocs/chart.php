@@ -217,6 +217,7 @@
 
             // Logo:
             $logo = $chartSection['logo'] ?? null;
+            $logoUrl = $chartSection['logo-url'] ?? null;
 
             // Titel:
             $title = $chartSection['title'] ?? null;
@@ -249,6 +250,7 @@
                     <img src="<?php echo $logo; ?>" 
                             class="img-fluid col-md-3"
                             alt="Logo"
+                            onclick="window.location.href='<?php echo $logoUrl; ?>';"
                     >
             </div>
         <?php endif; ?>
