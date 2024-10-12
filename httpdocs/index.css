@@ -1,4 +1,4 @@
-body {
+body.survey {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     display: flex;
@@ -23,16 +23,17 @@ body {
 .survey.background-image {
     background-repeat: no-repeat; 
     background-size: cover;
-    background-attachment: unset;
-    background-position: center top;
+    background-attachment: fixed;
     display: block;
-    position: absolute;
+    position: fixed;
     background-position: center top;
     min-height: 100vh;
     z-index: -10;
     width: 100%;
     margin:0;
     padding:0;
+    left: 0;
+    top: 0;    
 }
 
 .range-slider-container {
@@ -80,6 +81,16 @@ body {
     font-size: 20px;
     font-weight: bold;
 }
+
+.float-right {
+    float: right;
+}
+
+.float-left {
+    float: left;
+}
+
+
 
 .roll-in {
     animation: roll-in 0.25s linear 0s 1 normal forwards;

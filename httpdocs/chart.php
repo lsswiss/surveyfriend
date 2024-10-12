@@ -15,6 +15,7 @@ $charts = json_decode($jsonData, true);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Charts mit Chart.js</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="index.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         canvas {
@@ -32,17 +33,56 @@ $charts = json_decode($jsonData, true);
         <?php if (isset($chartSection['section'])): 
             // Wir sind in einer zu rendernden Section
             // Und rendern z.B. ein Chart...
+            $blnHasChart = isset($chartSection['section']['chart']);
+            $blnHasImage = isset($chartSection['section']['image']);
+
+            if ( !$blnHasChart )
+            {
+                // Kein Chart vorhanden, also formatieren wir Text und Bild anders:
+                if ( $blnHasImage ) {
+                    // Kein Chart, aber ein Bild vorhanden
+                    // Wir rendern also ein Bild mit Text
+                    $textClass = "col-md-8 float-right d-flex align-items-center";
+                    $imageClass = "col-md-4 float-left";
+                }
+            }
             ?>
             <div class="card mb-4">
-                <div class="card-body">
-                    <h2 class="card-title"><?php echo $chartSection['section']['title']??""; ?></h2>
-                    <p class="card-text"><?php echo $chartSection['section']['desc']??""; ?></p>
-                    <?php $chartId = uniqid('chart-'); ?>
-                    <canvas id="<?php echo $chartId; ?>"></canvas>
-
+                <div class="card-body <?php echo $chartSection['section']['class']??""; ?>">
+                    <!-- Card render Start -->
                     <?php
-                        // Rendern von hier in der card möglichen Buttons:
+                        // Einstellungen und Elemente für die Section laden und platzieren:
+
+                        // Bilder:
+                        $imageURL = $chartSection['section']['image'] ?? null;
+                        $imageAltText = $chartSection['section']['image-alt'] ?? null;
+                        $imageClass = $chartSection['section']['image-class'] ?? "img-fluid";
+                    ?>
+                    <div class="row">
+                        <?php if (isset($imageURL)): ?>
+                            <div class="col <?php echo $imageClass; ?>">
+                                <img src="<?php echo $imageURL; ?>"
+                                        class="col-md-12"
+                                        alt="<?php echo($imageAltText); ?>"
+                                >
+                            </div>
+                        <?php endif; ?>                        
+                        <div class="col <?php echo($textClass); ?>"
+                        >
+                            <h2 class="card-title><?php echo $chartSection['section']['title']??""; ?></h2>
+                            <p class="card-text"><?php echo $chartSection['section']['desc']??""; ?></p>
+                        </div>
+                    </div>
+
+                    <?php if ($blnHasChart): ?>
+                        <?php $chartId = uniqid('chart-'); ?>
+                        <canvas id="<?php echo $chartId; ?>"></canvas>
+                    <?php endif; ?>
+
+                    <?php                        
+                        // Buttons:
                         $buttons = $chartSection['section']['button'] ?? null;
+                        $blnQuestionHasButtons = false;
                     ?>
                     <?php if (isset($buttons)): ?>
                             <?php foreach ($buttons as $index => $button): 
@@ -64,44 +104,46 @@ $charts = json_decode($jsonData, true);
 
                 </div>
             </div>
-            <script>
-            
-                var ctx = document.getElementById('<?php echo $chartId; ?>').getContext('2d');
-                var chartData = <?php echo json_encode($chartSection['section']['chart']['data']); ?>;
-                var chartType = "<?php echo $chartSection['section']['chart']['type']; ?>";
-                var ChartTitle = "<?php echo str_replace(
-                                            '"', '\"', 
-                                            ( $chartSection['section']['chart']['title'] ?? "" )
-                                        ); 
-                                ?>";
-                var blnChartDisplay = ChartTitle.length > 0 ? true : false;
-
-                console.log(chartData);
-                console.log(chartType);
-
-                console.table(chartData); // Debugging chartData
+            <?php if ( isset($chartSection['section']['chart']) ): ?>
+                <script>
                 
-                // Chart.js Initialisierung
-                var ctx = document.getElementById('<?php echo $chartId; ?>').getContext('2d');
-                    var myChart = new Chart(ctx, {
-                        type: chartType,
-                        data: chartData,
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    display: true,
-                                    position: 'top',
-                                },
-                                title: {
-                                    display: blnChartDisplay,
-                                    text: ChartTitle,
+                    var ctx = document.getElementById('<?php echo $chartId; ?>').getContext('2d');
+                    var chartData = <?php echo json_encode($chartSection['section']['chart']['data']); ?>;
+                    var chartType = "<?php echo $chartSection['section']['chart']['type']; ?>";
+                    var ChartTitle = "<?php echo str_replace(
+                                                '"', '\"', 
+                                                ( $chartSection['section']['chart']['title'] ?? "" )
+                                            ); 
+                                    ?>";
+                    var blnChartDisplay = ChartTitle.length > 0 ? true : false;
+
+                    console.log(chartData);
+                    console.log(chartType);
+
+                    console.table(chartData); // Debugging chartData
+                    
+                    // Chart.js Initialisierung
+                    var ctx = document.getElementById('<?php echo $chartId; ?>').getContext('2d');
+                        var myChart = new Chart(ctx, {
+                            type: chartType,
+                            data: chartData,
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'top',
+                                    },
+                                    title: {
+                                        display: blnChartDisplay,
+                                        text: ChartTitle,
+                                    }
                                 }
                             }
-                        }
-                    });
-            
-            </script>
+                        });
+                
+                </script>
+            <?php endif; ?>
 
         <?php endif; ?>
 
@@ -109,7 +151,10 @@ $charts = json_decode($jsonData, true);
             // Rendern von hier möglichen Elementen im Root:
             // Hintergrundbild:
             $backgroundImage = $chartSection['background-image'] ?? null;
+            // Titel:
             $title = $chartSection['title'] ?? null;
+            // Class des übergeordneten Titels:
+            $titleClass = $chartSection['class'] ?? "text-center";
         ?>
 
         <?php if ($backgroundImage != ""): ?>
@@ -119,9 +164,11 @@ $charts = json_decode($jsonData, true);
         <?php endif; ?>
 
         <?php if ($title != ""): ?>
-            <h1 class="text-center mb-4">
-                <?php echo $title; ?>
-            </h1>
+            <div>
+                <h1 class="mb-4 <?php echo($titleClass); ?>">
+                    <?php echo $title; ?>
+                </h1>
+            </div>
         <?php endif; ?>
 
     <!-- next session !-->

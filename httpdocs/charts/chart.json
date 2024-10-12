@@ -1,7 +1,10 @@
 [ 
     {
-        "background-image": "assets/abusiness.webp",
-        "title": "Einsparungen und Umsatzentwicklung"
+        "background-image": "/assets/abusiness.webp",
+        "logo": "/assets/logo.png",
+        "title": "Deine Ersparnis mit aBusiness Suite",
+        "class": "text-white text-center"
+
     },
 
     {
@@ -55,7 +58,12 @@
 
     {
         "section": {
-            "title": "Deine jährliche Ersparnis, wenn dein Geschäft aBusiness Suite verwenden würde:  85,618.-- Schweizer Franken / oder Euro!"
+            "title": "Deine jährliche Ersparnis",
+            "class": "",
+            "desc": "Deine jährliche Ersparnis, wenn dein Geschäft aBusiness Suite verwenden würde: <strong>85,618.-- Schweizer Franken</strong>!",
+            "image": "/assets/savings.png",
+            "image-alt": "Ersparnisse dank aBusiness Suite",
+            "image-class": "col-md-4"
         }
     },
 
