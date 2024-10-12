@@ -25,7 +25,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         canvas {
-            max-width: 600px;
             margin: 20px auto;
         }
     </style>
@@ -104,6 +103,41 @@
 
                     <?php if ($blnHasChart): ?>
                         <?php $chartId = uniqid('chart-'); ?>
+
+                        <?php
+                            switch($chartSection['section']['chart']['type']) {
+                                case 'bar':
+                                    $chartHeight = 450;
+                                    break;
+                                case 'line':
+                                    $chartHeight = 450;
+                                    break;
+                                case 'pie':
+                                    $chartHeight = 320;
+                                    break;
+                                case 'doughnut':
+                                    $chartHeight = 450;
+                                    break;
+                                case 'radar':
+                                    $chartHeight = 450;
+                                    break;
+                                case 'polarArea':
+                                    $chartHeight = 450;
+                                    break;
+                                default:
+                                    $chartHeight = 450;
+                                    break;
+                            }
+
+                        ?>
+                        <!-- Breite des Charts anpassen -->
+                        <style>
+                            canvas#<?php echo $chartId; ?> {
+                                height: <?php echo $chartHeight; ?>px;
+                                max-width: 100%;
+                            }
+                        </style>
+
                         <canvas id="<?php echo $chartId; ?>"></canvas>
                     <?php endif; ?>
 
