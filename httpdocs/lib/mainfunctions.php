@@ -1,84 +1,75 @@
 <?php
 
     /**
-     * Inkludiert die Libriaries für die Webseite die spät geladen werden sollen.
-     *
-     * @return str 
-     * @author Urs Langmeier
+     * Im HTML-Header platziert, fügt diese Funktion alle benötigten Libraries in das HTML-Dokument
+     * ein.
      * 
-     * Diese Funktion muss am Ende des Body-Tags im HTML-Dokument aufgerufen werden.
-     * 
-     */
-    function librariesInclude_LateLoad() {
-
-        // Festhalten, dass die spät geladenen Libraries bereits verarbeitet wurden:
-        // -> Dies wird beim Beenden des Dokuments geprüft.
-        global $globalLateLoadedLibrariesProcessed;
-        $globalLateLoadedLibrariesProcessed = true;
-
-        // Interne Hauptfunktionen (Mainfunctions):
-        $libURL = "lib/mainfunctions.js";
-        echo "\n".'<script src="'.$libURL.'"></script>'."\n";
-
-        // Bootstrap:
-        // Neu in ->requireLibrary() hinzugefügt und somit bei ->librariesInclude() geladen.
-        //$libURL = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js";
-        //echo '<script src="'.$libURL.'"></script>';
-
-        // Aktuelles Skript:
-        // -> Falls eine .js-Datei mit dem aktuellen PHP-Skriptnamen
-        //    existiert...
-        $currentScript = basename($_SERVER['SCRIPT_FILENAME'], '.php') . '.js';
-
-        if (file_exists($currentScript)) {
-            echo '<script src="'.$currentScript.'"></script>';
-        } /* else {
-            consoleLog($currentScript." existiert nicht!");
-        }*/
-
-        // Module, die zum später laden hinzugefügt wurden
-        // werden hier geladen:
-        global $globalRequiredLibrariesToLoadLater_JS;
-        if (!empty($globalRequiredLibrariesToLoadLater_JS)) {
-            foreach ($globalRequiredLibrariesToLoadLater_JS as $lateLoadJavaScript) {
-                echo $lateLoadJavaScript;
-            }
-        }
-    
-    }
-
-    /**
-     * Lädt im HTML-Header die Libraries in das HTML-Dokument. Es unterstützt
-     * Libraries, die früh geladen werden sollen. 
-     *
-     * @return string
      * @param string $strAdditionalModules Zusätzliche Libraries, die geladen werden sollen
      *  (durch Kommas getrennt)
      * 
-     *  Beispiel: "animate,font-awesome"
+     *  Beispiel: `"animate,font-awesome"`
      * 
-     * @return void
+     * Gut zu wissen:
+     * --------------
+     * 
+     * - Die Libraries müssen in der Datei "lib/libraries.json" definiert sein.
+     * 
+     * - Die Libraries werden in der Reihenfolge geladen, wie sie da definiert sind.
+     * 
+     * - Die Libraries, die "loadOnDemand": true eingestellt haben, werden nur geladen,
+     *   wenn sie explizit im Parameter $strAdditionalModules angegeben sind. So können
+     *   Sie selten benötigte Libraries nur in einzelnen HTML-Dokumenten laden.
+     * 
+     * - Alle anderen Libraries werden immer geladen, sofern sie nicht bereits geladen wurden.
+     * 
+     *
+     * Folgende Dinge werden von libraries() zusätzlich noch mit geladen:
+     * -------------------------------------------------------------------
+     * 
+     * - `index.css` oder `main.css`, falls vorhanden
+     * 
+     * - Seitenspezifisches Stylesheet: eine `.css-Datei` mit dem aktuellen Skriptnamen,
+     *   falls vorhanden.
+     * 
+     * Wichtig / jsLateLoad:
+     * --------------------
+     * 
+     * Mit einem jsLateLoad kann die Webseite für den Benutzer schneller geladen werden:
+     * 
+     * -> Nicht alle Libraries werden mit libraries() sofort geladen! Ein Teil der nicht
+     *    am Anfang des HTML-Dokuments benötigten Libraries wird erst beim Aufruf von shutdown()
+     *    geladen.
+     * 
+     *    Wenn jsLateLoad aktiviert ist, dann wird das JavaScript der Library
+     *    erst beim Aufruf von shutdown() in das HTML-Dokument geladen.
+     * 
+     * -> Vergessen Sie deshalb nicht, die Funktion shutdown() vor dem Ende des Body-Tags
+     *    aufzurufen.
+     * 
+     * @see shutdown()
+     * 
+     * ----------------------------------------------------------------------------------------------
+     * 
+     * Beispiel-Aufruf der beiden Funktionen libraries() und shutdown():
+     * ------------------------------------------------------------------
+     * ```php
+     * <!DOCTYPE html>
+     * <html>
+     *      <head>
+     *          ...
+     *          <?php libraries("chartjs,animate"); ?>
+     *      </head>
+     *      <body>
+     *          ...
+     *          <?php shutdown(); ?>
+     *      </body>
+     *  </html>
+     * ```
+     * 
      * @author Urs Langmeier
      * 
-     * Diese Funktion muss im Head-Tag des HTML-Dokuments aufgerufen werden.
-     * Vergessen Sie nicht, die Funktion librariesInclude_LateLoad() am Ende
-     * des Body-Tags aufzurufen.
-     * 
-     * @see librariesInclude_LateLoad()
-     * 
-     * Diese Funktion lädt die Libraries, die in der Datei "lib/libraries.json" definiert sind.
-     * 
-     * Die Libraries können in der Datei "lib/libraries.json" definiert werden.
-     * -> Die Module werden in der Reihenfolge geladen, wie sie hier definiert sind.
-     * -> Die Module werden nur geladen, wenn sie nicht bereits geladen wurden.
-     *
-     * - Aktuelles Stylesheet (falls eine .css-Datei mit dem aktuellen PHP-Skriptnamen existiert)
-     * - index.css oder main.css (falls vorhanden)
-     * - Zusätzliche Module, die nicht von allen Seiten benötigt werden, können unter
-     *   strAdditionalModules angegeben werden.
-     * 
      */
-    function librariesInclude($strAdditionalModules = "") {
+    function libraries($strAdditionalModules = "") {
 
         // Input harmonisieren:
         if ( $strAdditionalModules != "" ) {
@@ -113,7 +104,7 @@
                     if ( instr($strAdditionalModules, ",".$libName."," ) ) {
                         // Die Bibliothek wird jetzt benötigt...
                         // -> Lade die Bibliothek:
-                        requireLibrary($library['name']);
+                        require_library($library['name']);
                     } else {
                         // Die Bibliothek wird nicht benötigt...
                         // -> Lade die Bibliothek nicht:
@@ -123,7 +114,7 @@
             } else {
                 // Die Bibliothek wird immer geladen...
                 // -> Lade die Bibliothek:
-                requireLibrary($library['name']);
+                require_library($library['name']);
             }
         }
 
@@ -150,19 +141,38 @@
     }
 
     /**
-     * Inkludiert eine Library in die Webseite.
+     * Inkludiert eine einzelne CSS / JavaScript Library in das aktuelle HTML-Dokument.
+     * 
+     * Die Library muss in der Datei "lib/libraries.json" definiert sein.
      *
-     * @param  string $libName Der Name der Library
+     * @param  string $libName Der Name der CSS / JavaScript Library
      * @return void
      * 
-     * Nicht alle Libraries werden sofort geladen, sondern manche erst später.
-     * Dies ist der Fall, wenn die Library nicht sofort benötigt wird.
-     * Dies wird dann durch die Funktion librariesInclude_LateLoad() gemacht.
-     * Der Grund dafür ist, dass so die Webseite schneller geladen wird.
+     * Wichtig:
+     * ========
      * 
-     * @see librariesInclude_LateLoad()
+     * Es wird empfohlen, die Funktion libraries() zu verwenden, um alle benötigten Libraries
+     * in das HTML-Dokument einzufügen.
+     * 
+     * @see libraries()
+     * 
+     * jsLateLoad:
+     * ===========
+     * 
+     * Nicht alle Arten von Libraries werden mit diesem Befehl sofort geladen:
+     * 
+     * Wenn jsLateLoad aktiviert ist, dann wird das JavaScript der Library
+     * erst später beim Aufruf von libraries_LateLoad() geladen.
+     *
+     * -> So kann die Webseite für den Benutzer schneller geladen werden.
+     * 
+     * @see libraries_LateLoad()
+     * 
+     * @example require_library("chartjs");
+     * @example require_library("bootstrap", "3.4.1");
+     * 
      */
-    function requireLibrary($libraryName, $libraryVersion = "locked") {
+    function require_library($libraryName, $libraryVersion = "locked") {
 
         // Library-Name in Kleinbuchstaben umwandeln:
         $libName = strtolower($libraryName);
@@ -270,6 +280,48 @@
                 }
             }
         }
+    }
+
+    /**
+     * Inkludiert die Libriaries für die Webseite die spät geladen werden sollen.
+     *
+     * @return str 
+     * @author Urs Langmeier
+     * 
+     * Diese Funktion muss am Ende des Body-Tags im HTML-Dokument aufgerufen werden.
+     * 
+     */
+    function libraries_LateLoad() {
+
+        // Festhalten, dass die spät geladenen Libraries bereits verarbeitet wurden:
+        // -> Dies wird beim Beenden des Dokuments geprüft.
+        global $globalLateLoadedLibrariesProcessed;
+        $globalLateLoadedLibrariesProcessed = true;
+
+        // Interne Hauptfunktionen (Mainfunctions):
+        $libURL = "lib/mainfunctions.js";
+        echo "\n".'<script src="'.$libURL.'"></script>'."\n";
+
+        // Aktuelles Skript:
+        // -> Falls eine .js-Datei mit dem aktuellen PHP-Skriptnamen
+        //    existiert...
+        $currentScript = basename($_SERVER['SCRIPT_FILENAME'], '.php') . '.js';
+
+        if (file_exists($currentScript)) {
+            echo '<script src="'.$currentScript.'"></script>';
+        } /* else {
+            consoleLog($currentScript." existiert nicht!");
+        }*/
+
+        // Module, die zum später laden hinzugefügt wurden
+        // werden hier geladen:
+        global $globalRequiredLibrariesToLoadLater_JS;
+        if (!empty($globalRequiredLibrariesToLoadLater_JS)) {
+            foreach ($globalRequiredLibrariesToLoadLater_JS as $lateLoadJavaScript) {
+                echo $lateLoadJavaScript;
+            }
+        }
+    
     }
 
     /**
@@ -670,43 +722,12 @@
     }
 
     /**
-    * Führt die im HTML-Header notwendigen Funktionen aus.
-    *
-    * @param string $librariesToExplicitlyLoad Die Libraries, die explizit geladen werden sollen.
-    *               Kommagetrennte Liste, z.B. "animate,font-awesome"
-    *
-    *               Die Libraries müssen in der Datei "lib/libraries.json" definiert sein.
-    *
-    *               -> Die Module werden in der Reihenfolge geladen, wie sie da definiert sind.
-    *               -> Die Module werden nur geladen, wenn sie nicht bereits geladen wurden.
-    *
-    *               -> Module, die "loadOnDemand": true haben, werden nur geladen, wenn sie explizit
-    *                  in $librariesToExplicitlyLoad angegeben sind.
-    *
-    *               -> Module, die "loadOnDemand": false haben, werden immer geladen.
-    *
-    * @return void
-    * @see librariesInclude()
-    */
-    function headHook($librariesToExplicitlyLoad = "") {
-        // Diese Funktion wird im Head-Tag des Dokuments aufgerufen.
-        // -> Hier werden die Libraries geladen:
-        librariesInclude($librariesToExplicitlyLoad);
-    }
-
-    /** 
-     * Führt die Funktionen aus, die vor dem Schliessen des Body-Tags notwendig sind.
-     * Zum Beispiel das Laden von JavaScript-Dateien, die am Ende des Dokuments
+     * Lädt vor der Beendigung des Dokuments die als LateLoad noch zu ladenden Libraries
+     * (JavaScript-Dateien). Diese Libraries wurden mit libraries() oder mit require_library()
+     * hinzugefügt, sind aber noch nicht in das HTML-Dokument eingefügt, weil sie erst später
      * geladen werden sollen.
-     */
-    function bodyEndHook() {
-        // Diese Funktion wird am Ende des Body-Tags aufgerufen.
-        // -> Hier werden die Libraries geladen, die später geladen werden sollen.
-        librariesInclude_LateLoad();
-    }
-
-    /**
-     * Lädt vor der Beendigung des Dokuments die noch zu ladenden Libraries (JavaScript-Dateien).
+     * 
+     * In der Datei '/lib/libraries.json' haben diese Libraries den Wert 'jsLateLoad': true.
      * 
      * shutdown() muss zwingend vor dem Body-Tag im HTML-Dokument aufgerufen werden.
      * 
@@ -720,14 +741,14 @@
     function shutdown() {
         // Diese Funktion wird am Ende des Dokuments aufgerufen.
         // -> Hier werden die Libraries geladen, die später geladen werden sollen.
-        librariesInclude_LateLoad();
+        libraries_LateLoad();
     }
 
     function documentEndChecks() {
         // Diese Hook wird am Ende des Dokuments aufgerufen.
         // -> Hier prüfen wir ein paar Dinge, ob alles richtig gelaufen ist.
 
-        // 1. Der Benutzer hat die Funktion librariesInclude_LateLoad() aufgerufen?
+        // 1. Der Benutzer hat die Funktion libraries_LateLoad() aufgerufen?
         global $globalLateLoadedLibrariesProcessed;
         $blnFound = false;
         if (isset($globalLateLoadedLibrariesProcessed)) {

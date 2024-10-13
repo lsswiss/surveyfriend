@@ -21,7 +21,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultat deines Surveys</title>
 
-    <?php headHook("chartjs"); ?>
+    <?php libraries("chartjs"); ?>
 
     <style>
         canvas {
@@ -268,7 +268,7 @@
 </div>
 
 
-    <?php bodyEndHook(); ?>
+    <?php shutdown(); ?>
 </body>
 </html>
 

@@ -120,7 +120,7 @@ $question = $survey[$current_question];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Survey</title>
-    <?php headHook(""); ?>
+    <?php libraries(); ?>
     
 </head>
 <body class="survey">
@@ -219,6 +219,6 @@ $question = $survey[$current_question];
         </form>
     </div>
 
-   <?php bodyEndHook(); ?>
+   <?php shutdown(); ?>
 </body>
 </html>

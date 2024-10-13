@@ -2,7 +2,8 @@
 
     require_once('lib/mainfunctions.php');
     
-    librariesInclude("chartjs");
+   // librariesInclude("");
+    libraries();
 
     echo "globi";
 
