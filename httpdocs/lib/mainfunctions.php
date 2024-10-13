@@ -76,6 +76,8 @@
         $currentStylesheet = basename($_SERVER['SCRIPT_FILENAME'], '.php') . '.css';
         if (file_exists($currentStylesheet)) {
             echo '<link href="'.$currentStylesheet.'" rel="stylesheet">';
+        } else {
+            consoleLog($currentStylesheet." existiert nicht!");
         }
 
         // Zusätzliche Module die nicht von allen Seiten benötigt werden:
@@ -124,8 +126,6 @@
         }
         
         // Wurde die Library bereits hinzugefügt?
-        print_r($globalRequiredLibraries);
-        print_r($libName);
         if (in_array($libName, $globalRequiredLibraries)) {
             // Ja!
             // -> Nichts tun. Nur einmal hinzufügen.
