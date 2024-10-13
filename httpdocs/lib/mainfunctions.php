@@ -11,9 +11,14 @@
      */
     function librariesInclude_LateLoad() {
 
+        // Festhalten, dass die spät geladenen Libraries bereits verarbeitet wurden:
+        // -> Dies wird beim Beenden des Dokuments geprüft.
+        global $globalLateLoadedLibrariesProcessed;
+        $globalLateLoadedLibrariesProcessed = true;
+
         // Interne Hauptfunktionen (Mainfunctions):
         $libURL = "lib/mainfunctions.js";
-        echo '<script src="'.$libURL.'"></script>';
+        echo "\n".'<script src="'.$libURL.'"></script>'."\n";
 
         // Bootstrap:
         // Neu in ->requireLibrary() hinzugefügt und somit bei ->librariesInclude() geladen.
@@ -27,16 +32,16 @@
 
         if (file_exists($currentScript)) {
             echo '<script src="'.$currentScript.'"></script>';
-        } else {
+        } /* else {
             consoleLog($currentScript." existiert nicht!");
-        }
+        }*/
 
         // Module, die zum später laden hinzugefügt wurden
         // werden hier geladen:
         global $globalRequiredLibrariesToLoadLater_JS;
         if (!empty($globalRequiredLibrariesToLoadLater_JS)) {
-            foreach ($globalRequiredLibrariesToLoadLater_JS as $jsURL) {
-                echo '<script src="'.$jsURL.'"></script>';
+            foreach ($globalRequiredLibrariesToLoadLater_JS as $lateLoadJavaScript) {
+                echo $lateLoadJavaScript;
             }
         }
     
@@ -60,44 +65,63 @@
      * 
      * @see librariesInclude_LateLoad()
      * 
-     * Diese Funktion lädt die folgenden Libraries:
-     * - Bootstrap
+     * Diese Funktion lädt die Libraries, die in der Datei "lib/libraries.json" definiert sind.
+     * 
+     * Die Libraries können in der Datei "lib/libraries.json" definiert werden.
+     * -> Die Module werden in der Reihenfolge geladen, wie sie hier definiert sind.
+     * -> Die Module werden nur geladen, wenn sie nicht bereits geladen wurden.
+     *
      * - Aktuelles Stylesheet (falls eine .css-Datei mit dem aktuellen PHP-Skriptnamen existiert)
      * - Zusätzliche Module, die nicht von allen Seiten benötigt werden
      * 
      */
     function librariesInclude($strAdditionalModules = "") {
 
-        // Bootstrap:
-        requireLibrary("bootstrap5.3");
+        // Input harmonisieren:
+        $strAdditionalModules = "," . $strAdditionalModules . ",";
+        $strAdditionalModules = lcase($strAdditionalModules);
+        $strAdditionalModules = replace($strAdditionalModules, ".", "");
+        $strAdditionalModules = trim($strAdditionalModules);
+
+        $libraries = file_get_contents("lib/libraries.json");
+        $libraries = json_decode($libraries, true);
+        $libraries = $libraries['libraries'];
+    
+        foreach ($libraries as $library) {
+            if ( $library['loadOnDemand'] ) {
+                // Die Bibliothek wird nur bei Gebrauch geladen...
+
+                // Aus Library-Namen mögliche Punkte (.) entfernen
+                // -> Es soll "chartjs" als Library hinzugefügt werden können, nicht "chart.js".
+                //    Beides soll möglich sein.
+                $libName = lcase($library['name']);
+                $libName = str_replace(".", "", $libName);
+                $libName = trim($libName);
+
+                if ( instr($strAdditionalModules, ",".$libName."," ) ) {
+                    // Die Bibliothek wird jetzt benötigt...
+                    // -> Lade die Bibliothek:
+                    requireLibrary($library['name']);
+                } else {
+                    // Die Bibliothek wird nicht benötigt...
+                    // -> Lade die Bibliothek nicht:
+                    continue;
+                }
+            } else {
+                // Die Bibliothek wird immer geladen...
+                // -> Lade die Bibliothek:
+                requireLibrary($library['name']);
+            }
+        }
 
         // Aktuelles Stylesheet (falls eine .css-Datei mit dem aktuellen PHP-Skriptnamen
         // existiert):
         $currentStylesheet = basename($_SERVER['SCRIPT_FILENAME'], '.php') . '.css';
         if (file_exists($currentStylesheet)) {
             echo '<link href="'.$currentStylesheet.'" rel="stylesheet">';
-        } else {
-            consoleLog($currentStylesheet." existiert nicht!");
-        }
-
-        // Zusätzliche Module die nicht von allen Seiten benötigt werden:
-        // -> Diese werden nur geladen, wenn sie benötigt werden.
-        // -> Die Module werden durch Kommas getrennt.
-        // -> Beispiel: "animate,font-awesome"
-        // -> Die Module müssen in der Funktion requireLibrary() definiert sein.
-        // -> Die Module werden in der Reihenfolge geladen, wie sie hier definiert sind.
-        // -> Die Module werden nur geladen, wenn sie nicht bereits geladen wurden.
-        if ($strAdditionalModules != "") {
-            $arModules = explode(",", $strAdditionalModules);
-            foreach ($arModules as $module) {
-                $module = trim($module);
-                if ($module != "") {
-                    consoleLog("Module: ".$module);
-                    requireLibrary($module);
-                }
-            }
-        }
-
+        } /* else {
+            consoleLog("Seitenspezifisches Stylesheet ".$currentStylesheet." existiert nicht!");
+        }*/
     }
 
     /**
@@ -113,7 +137,20 @@
      * 
      * @see librariesInclude_LateLoad()
      */
-    function requireLibrary($libName) {
+    function requireLibrary($libraryName, $libraryVersion = "locked") {
+
+        // Library-Name in Kleinbuchstaben umwandeln:
+        $libName = strtolower($libraryName);
+
+        // Aus Library-Namen mögliche Punkte (.) entfernen
+        // -> Es soll "chartjs" als Library hinzugefügt werden können, nicht "chart.js".
+        //    Beides soll möglich sein.
+        $libName = str_replace(".", "", $libName);
+        $libName = trim($libName);
+        $libVer = $libraryVersion;
+        if ( $libVer == "" ) {
+            $libVer = "locked";
+        }
 
         global $globalRequiredLibraries;
         if (!isset($globalRequiredLibraries)) {
@@ -138,46 +175,75 @@
 
         // Initialisierung:
         $cssLink = "";
-        $jsLoadNow = "";
-        $jsLoadLater = "";
+        $jsLink = "";
+        $jsLateLoad = false;
 
         // Welches Modul soll geladen werden?
-        switch ($libName) {
-            
-            case "bootstrap5.3":
-                $cssLink = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css";
-                $jsLoadLater = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js";        
-                break;
-            
-            case "bootstrap4.3.1":
-                $cssLink = "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css";
-                $jsLoadLater = "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js";
-                break;
+        // ->Dazu die libraries.json einlesen:
+        $libraries = file_get_contents("lib/libraries.json");
+        $libraries = json_decode($libraries, true);
+        $libraries = $libraries['libraries'];
 
-            case "bootstrap-icons":
-                $cssLink = "https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css";
-                $jsLoadLater = "https://cdn.jsdelivr.net/npm/bootstrap-icons/bootstrap-icons.js";
-                break;
-            
-            case "font-awesome":
-                $cssLink = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css";
-                $jsLoadLater = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js";
-                break;
-            
-            case "chartjs":
-                $cssLink = "https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.css";
-                $jsLoadNow = "https://cdn.jsdelivr.net/npm/chart.js";
-                break;
+        // Durchsuchen der Libraries:
+        $blnFound = false;
+        foreach ($libraries as $library) {
+            if ( str_replace(".", "", strtolower($library['name'])) == $libName ) {
+                if ( $libVer != "locked" ) {
+                    // Version ist angegeben die gewünscht ist:
+                    if ( $library['locked']['version'] != $libVer ) {
+                        // Version der locked version stimmt nicht überein!
+                        // -> Hol explizit diese Version:
+                        if ( array_key_exists($libVer, $library) ) {
+                            $blnFound = true;
+                        } else {
+                            // Version nicht gefunden!
+                            // ->Weiter suchen, denn vielleicht wurde die Library
+                            //   mit demselben Namen, aber einer anderen Version in einem
+                            //   weiteren Library-Item später noch definiert...
+                            continue;
+                        }
+                    } else {
+                        // Version stimmt mit der locked-Version überein!
+                        $libVer = "locked";
+                        $blnFound = true;
+                    }
+                }
+                // Library gefunden!
+                $blnFound = true;
+                break;                
+            }
         }
-        if ($cssLink != "") {
-            echo '<link href="'.$cssLink.'" rel="stylesheet">'."\n";
-        }
-        if ($jsLoadNow != "") {
-            echo '<script src="'.$jsLoadNow.'"></script>'."\n";
-        }
-        if ($jsLoadLater != "") {
-            consoleLog("Library wird später geladen: ".$jsLoadLater);
-            $globalRequiredLibrariesToLoadLater_JS[] = $jsLoadLater;
+
+        if (!$blnFound) {
+            consoleLog("Library nicht gefunden: ".$libraryName." ".$libVer);
+            return;
+        } else {
+            // Library gefunden!
+            // consoleLog("Library wird geladen: ".$libraryName);
+
+            $cssLink = $library[$libVer]["css"];
+            $jsLink = $library[$libVer]["js"];
+            $jsLateLoad = $library["jsLateLoad"];
+
+            if ( $cssLink != "" ) {
+                // CSS-Link hinzufügen:
+                echo "<!-- " . $library['name'] . " -->";
+                echo '<link href="'.$cssLink.'" rel="stylesheet">'."\n";
+            }
+            if ( $jsLink != "" ) {
+                if ($jsLateLoad) {
+                    // JS-Link später hinzufügen:
+                    // consoleLog("Late Load (JS): ".$libraryName);
+                    $javaScript = "<!-- " . $library['name'] . " -->"
+                                 .'<script src="'.$jsLink.'"></script>'."\n";
+                    $globalRequiredLibrariesToLoadLater_JS[] = $javaScript;
+                
+                } else {
+                    // JS-Link hinzufügen:
+                    echo "<!-- " . $library['name'] . " -->";
+                    echo '<script src="'.$jsLink.'"></script>'."\n";
+                }
+            }
         }
     }
 
@@ -495,3 +561,133 @@
     function len($str) {
         return strlen($str);
     }
+
+    /**
+     * Gibt aus einem String einen Teilstring zurück, unter Angabe einer zu
+     * suchenden Stelle.
+     *
+     * @param string $p_sString Der Eingabestring.
+     * 
+     * @param string $p_sFind Dieser Text wird gesucht. Text, der zwischen
+     *                        dem Zeichen ab der durch $p_sFind gefunden Stelle,
+     *                        und der durch $p_sFindTo gefundenen Stelle steht,
+     *                        wird zurückgegeben. Wenn $p_sFind nicht angegeben
+     *                        ist, dann wird Text ab dem ersten Zeichen zurück-
+     *                        gegeben.
+     * 
+     * @param string $p_sFindTo Wenn Angegeben: Gibt Text nur bis zum Auftreten
+     *                          dieses Zeichens zurück oder bis zum Ende des Textes.
+     * 
+     * @param bool $p_blnCaseSensitive Vergleichsmethode: True = Case Sensitive,
+     *                                 False = Case Insensitive (Standard)
+     */
+    function getPartOfString($p_sString, $p_sFind, $p_sFindTo = "", $p_blnCaseSensitive = false)
+    {
+        $lPos = 0;
+        $lPos2 = 0;
+        
+        if ( $p_sString != "" )
+        {
+            // Suche das Vorkommen von Find im String:
+            if ( $p_sFind == "" )
+            {   // Wenn der Begin-String nicht angegeben ist, dann
+                // bitte vom ersten Zeichen weg beginnen zu suchen...
+                $lPos = 0;
+            } else
+            {
+                if ( $p_blnCaseSensitive )
+                {	// Case sensitive:
+                    $lPos = strpos( $p_sString, $p_sFind );
+                } else
+                {	// Case insensitive:
+                    $lPos = stripos( $p_sString, $p_sFind );
+                }
+            }
+            
+            if ( !($lPos === false ) )
+            {
+                if ( strlen($p_sFindTo) > 0 )
+                {
+                    // Suche das FindTo vom restlichen String:
+                    if ( $p_blnCaseSensitive )
+                    {	// Case sensitive:
+                        $lPos2 = strpos( $p_sString, $p_sFindTo, $lPos + strlen($p_sFind) );
+                    } else
+                    {	// Case insensitive:
+                        $lPos2 = stripos( $p_sString, $p_sFindTo, $lPos + strlen($p_sFind) );
+                    }
+                    
+                    if ( !($lPos2 === false) )
+                    {	
+                        return substr( $p_sString, $lPos + strlen($p_sFind), $lPos2 - ($lPos + strlen($p_sFind)));
+                    }
+                    else
+                    {   // Findto ist nicht vorhanden...
+                        // -> Den String bis zum Ende zurückgeben...
+                        return substr($p_sString, $lPos + strlen($p_sFind));
+                    }
+                }
+                else 
+                {	// Ein FindTo ist nicht angegeben - Rest-String zurückgeben:
+                    return substr($p_sString, $lPos + strlen($p_sFind));
+                }
+            } else
+            {
+                // ula, 16.05.2019
+                // Kein String gefunden!
+                // -> Leerstring zurückgeben...
+                return "";
+            }
+        } else
+        {   // Kein String da!
+            return "";
+        }
+    }
+
+    /**
+     * Lädt vor der Beendigung des Dokuments die noch zu ladenden Libraries (JavaScript-Dateien).
+     * 
+     * shutdown() muss zwingend vor dem Body-Tag im HTML-Dokument aufgerufen werden.
+     * 
+     * Platzieren Sie die Funktion shutdown() vor dem schliessenden Body-Tag:
+     * ...
+     * ...
+     *      <?php shutdown(); ?>
+     * </body>
+     * </html>
+     */
+    function shutdown() {
+        // Diese Funktion wird am Ende des Dokuments aufgerufen.
+        // -> Hier werden die Libraries geladen, die später geladen werden sollen.
+        librariesInclude_LateLoad();
+    }
+
+    function documentEndChecks() {
+        // Diese Hook wird am Ende des Dokuments aufgerufen.
+        // -> Hier prüfen wir ein paar Dinge, ob alles richtig gelaufen ist.
+
+        // 1. Der Benutzer hat die Funktion librariesInclude_LateLoad() aufgerufen?
+        global $globalLateLoadedLibrariesProcessed;
+        $blnFound = false;
+        if (isset($globalLateLoadedLibrariesProcessed)) {
+            if ($globalLateLoadedLibrariesProcessed) {
+                // Libraries wurden bereits geladen...
+                $blnFound = true;
+            }
+        }
+        if ( !$blnFound ) {
+            // Libraries wurden nicht geladen...
+            ob_clean();
+            $errText = "<pre>".htmlentities("Fehler: Platzieren Sie die Funktion shutdown() vor dem schliessenden Body-Tag:\n\n"
+                . "...\n"
+                . "...\n"
+                . "...\n"
+                . "     <?php shutdown(); ?>\n"
+                . "</body>\n"
+                . "</html>\n")."</pre>";
+            echo $errText;
+            exit;
+        }
+    }
+
+    register_shutdown_function('documentEndChecks');

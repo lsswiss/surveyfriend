@@ -217,10 +217,6 @@ $question = $survey[$current_question];
         </form>
     </div>
 
-   <?php
-        // Include the libraries that should be loaded late
-        librariesInclude_LateLoad();
-   ?>
-
+   <?php shutdown(); ?>
 </body>
 </html>

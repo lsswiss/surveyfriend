@@ -1,12 +1,9 @@
 <?php
 
     require_once('lib/mainfunctions.php');
-
+    
     librariesInclude("chartjs");
 
+    echo "globi";
 
-
-    // Start der survey-Sitzung:
-    echo "session_start()";
-
-    librariesInclude_LateLoad();
+    shutdown();

@@ -7,6 +7,14 @@
                 "js": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js",
                 "css": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
             },
+            "4.6.0": {
+                "js": "https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js",
+                "css": "https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+            },
+            "4.3.1": {
+                "js": "https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.bundle.min.js",
+                "css": "https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+            },
             "jsLateLoad": true,
             "loadOnDemand": false
         },
@@ -15,7 +23,7 @@
             "locked": {
                 "version": "6.0.0",
                 "js": "",
-                "css": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css",
+                "css": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
             },
             "jsLateLoad": true,
             "loadOnDemand": true
@@ -32,7 +40,7 @@
                 "css": ""
             },
             "jsLateLoad": true,
-            "loadOnDemand": true
+            "loadOnDemand": false
         },
         {
             "name": "Chart.js",
@@ -42,6 +50,7 @@
                 "css": "https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.css"
             },
             "latest" : {
+                "version": "4.4.4",
                 "js": "https://cdn.jsdelivr.net/npm/chart.js",
                 "css": "https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.css"
             },
