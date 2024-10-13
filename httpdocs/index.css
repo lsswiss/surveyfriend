@@ -60,6 +60,7 @@ body.charts {
     border-radius: 15px;
     padding: 15px;
     max-width: 500px;
+    user-select: none; /* Nicht unterstützte Browser */
 }
 
 .survey.background-image {
@@ -87,6 +88,7 @@ body.charts {
 }
 
 .range-slider {
+    appearance: none;
     -webkit-appearance: none;
     width: 300px;
     height: 15px;

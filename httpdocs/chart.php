@@ -11,7 +11,7 @@
         die('Fehler beim Lesen der JSON-Datei. Bitte überprüfen Sie die Datei: ' . $jsonFile);
     }
 
-    require_once('modules/mainfunctions.php');
+    require_once('lib/mainfunctions.php');
 ?>
 
 <!DOCTYPE html>
@@ -19,7 +19,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Charts mit Chart.js</title>
+    <title>Resultat deines Surveys</title>
+    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="index.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -230,7 +231,7 @@
                 <style>
                     :root {
                         --ci-primary-color: <?php echo $primaryColor; ?>;
-                        --dark-blend-color: <?php echo hexToRgba($primaryColor, 0.6); ?>;
+                        --dark-blend-color: <?php echo hex2Rgba($primaryColor, 0.6); ?>;
                     }
                 </style>
             <?php endif;

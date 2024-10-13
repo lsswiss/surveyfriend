@@ -1,0 +1,159 @@
+{
+    "libraries": [
+        {
+            "name": "jQuery",
+            "locked": {
+                "version": "3.6.0",
+                "js": "https://code.jquery.com/jquery-3.7.1.min.js",
+                "css": ""
+            },
+            "latest" : {
+                "js": "https://code.jquery.com/jquery-3.7.1.min.js",
+                "css": ""
+            },
+            "jsLateLoad": true,
+            "loadOnDemand": false
+        },
+        {
+            "name": "Bootstrap",
+            "locked": {
+                "version": "5.3.0",
+                "js": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js",
+                "css": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+            },
+            "jsLateLoad": true,
+            "loadOnDemand": false
+        },
+        {
+            "name": "FontAwesome",
+            "locked": {
+                "version": "6.0.0",
+                "js": "",
+                "css": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css",
+            },
+            "jsLateLoad": true,
+            "loadOnDemand": false
+        },
+        {
+            "name": "Chart.js",
+            "locked": {
+                "version": "4.4.4",
+                "js": "https://cdn.jsdelivr.net/npm/chart.js",
+                "css": "https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.css"
+            },
+            "latest" : {
+                "js": "https://cdn.jsdelivr.net/npm/chart.js",
+                "css": "https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.css"
+            },
+            "jsLateLoad": true,
+            "loadOnDemand": true
+        },
+        {
+            "name": "animate.css",
+            "locked": {
+                "version": "4.1.1",
+                "js": "",
+                "css": "https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+            },
+            "latest" : {
+                "js": "",
+                "css": "https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+            },
+            "jsLateLoad": true,
+            "loadOnDemand": false
+        },
+        {
+            "name": "D3.js",
+            "locked": {
+                "version": "7.0.0",
+                "js": "https://cdn.jsdelivr.net/npm/d3@7.0.0/dist/d3.min.js",
+                "css": ""
+            },
+            "latest" : {
+                "js": "https://cdn.jsdelivr.net/npm/d3@7.0.0/dist/d3.min.js",
+                "css": ""
+            },
+            "jsLateLoad": true,
+            "loadOnDemand": true
+        },
+        {
+            "name": "Three.js",
+            "locked": {
+                "version": "0.132.2",
+                "js": "https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js",
+                "css": ""
+            },
+            "latest" : {
+                "js": "https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js",
+                "css": ""
+            },
+            "jsLateLoad": true,
+            "loadOnDemand": true
+
+        },
+        {
+            "name": "Vue.js",
+            "locked": {
+                "version": "3.2.0",
+                "js": "https://cdn.jsdelivr.net/npm/vue@3.2.0/dist/vue.global.prod.js",
+                "css": ""
+            },
+            "jsLateLoad": true,
+            "loadOnDemand": true
+        },
+        {
+            "name": "React",
+            "locked": {
+                "version": "18",
+                "js": [ "https://unpkg.com/react@18/umd/react.production.min.js",
+                        "https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+                      ],
+                "css": ""
+            },
+            "jsLateLoad": true,
+            "loadOnDemand": true
+        },
+        {
+            "name": "Lodash",
+            "locked": {
+                "version": "",
+                "js": "",
+                "css": ""
+            },
+            "latest" : {
+                "js": "",
+                "css": ""
+            },
+            "jsLateLoad": true,
+            "loadOnDemand": true
+        },
+        {
+            "name": "Axios",
+            "locked": {
+                "version": "",
+                "js": "",
+                "css": ""
+            },
+            "latest" : {
+                "js": "",
+                "css": ""
+            },
+            "jsLateLoad": true,
+            "loadOnDemand": true
+        },
+        {
+            "name": "Moment.js",
+            "locked": {
+                "version": "",
+                "js": "",
+                "css": ""
+            },
+            "latest" : {
+                "js": "",
+                "css": ""
+            },
+            "jsLateLoad": true,
+            "loadOnDemand": true
+        }
+    ]
+}

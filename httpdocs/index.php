@@ -6,6 +6,7 @@ $languageISO = "de-DE";
 $fileSurvey = "survey.json";
 //$fileSurvey = 'hotel-survey.json';
 
+require_once('lib/mainfunctions.php');
 
 // Start der survey-Sitzung:
 session_start();
@@ -191,34 +192,6 @@ $question = $survey[$current_question];
                 <label for="rangeInput"><?php echo $question['a']['label']; ?></label>
                 <input type="range" id="rangeInput" name="answer" class="form-control range-slider" min="<?php echo $question['a']['range']['min']; ?>" max="<?php echo $question['a']['range']['max']; ?>" step="<?php echo $question['a']['range']['step']; ?>" required>
                 <div class="value-display"><?php echo $question['a']['range']['min']; ?></div>
-
-                <!-- script>
-                    /* Wert des Range-Sliders im gewünschten Format anzeigen */
-                    document.getElementById('rangeInput').addEventListener('input', function() {
-                        var value = this.value;
-                        var formattedValue = value;
-                        var format = "<?php echo strtolower($format); ?>";
-
-                        if ( format === "money" || format === "currency" ) {
-                            /* Es ist ein Geldbetrag im Slider (Format ist money oder currency):
-                               ->Formatiere den gewählten Range im Währungs-Format falls gewünscht:
-                            */                        
-                            var formattedValue = new Intl.NumberFormat('<?php echo $languageISO ?? "de-DE"; ?>',
-                                                                        {
-                                                                            style: 'decimal',
-                                                                            minimumFractionDigits: 2,
-                                                                            maximumFractionDigits: 2
-                                                                        }
-                            ).format(value);
-                        }
-
-                        /* Präfix und Suffix hinzufügen */
-                        var preFix = "<?php echo str_replace('"', '\"', $prefix); ?>"
-                        var postFix = "<?php echo str_replace('"', '\"', $postfix); ?>"
-                        document.querySelector('.value-display').textContent = preFix + formattedValue + postFix;
-                        alert(preFix + formattedValue + postFix);
-                    });
-                </script -->
             
             <?php elseif (isset($question['a']['fields'])): ?>
                 <?php foreach ($question['a']['fields'] as $field): ?>
@@ -245,7 +218,10 @@ $question = $survey[$current_question];
         </form>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="index.js"></script>
+   <?php
+        // Include the libraries that should be loaded late
+        librariesInclude_LateLoad();
+   ?>
+
 </body>
 </html>

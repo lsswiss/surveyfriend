@@ -1,12 +1,3 @@
-// const sliders = document.querySelectorAll(".range-slider");
-// const valueDisplays = document.querySelectorAll(".value-display");
-
-// sliders.forEach((slider, index) => {
-//     slider.oninput = function() {
-//         valueDisplays[index].textContent = this.value;
-//     }
-// });
-
 /* Wert des Range-Sliders im gewünschten Format im Display Label anzeigen */
 const rangeInput = document.getElementById('rangeInput');
 if (rangeInput) {
@@ -14,6 +5,7 @@ if (rangeInput) {
         var value = this.value;
         var formattedValue = value;
         var format = window.numberFormat;
+        var languageISO = window.languageISO || 'de-DE'; // Default to 'en-US' if not defined
         var preFix = window.preFix;
         var postFix = window.postFix;
 
@@ -34,3 +26,28 @@ if (rangeInput) {
         // alert(preFix + formattedValue + postFix);
     });
 }
+
+
+ /* Alle Werte im jeweiligen Formular auf dem Server abspeichern...
+    -> Sobald sich ein Wert ändert, wird dieser in der Session gespeichert
+*/
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input, textarea, select');
+
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Eingegebener Wert in Session speichern:
+            var value = {  
+                            "type": this.type,
+                            "id": this.id,
+                            "value": this.value,
+                            "checked": this.checked
+                        };
+            
+            // In Session abspeichern:
+            httpsPost_JSON('save.php', value, true);
+
+        });
+    });
+});
