@@ -105,6 +105,7 @@ if ($current_question == count($survey)) {
         </form>
     <?php
 
+    shutdown();
     session_destroy();
     exit();
 }
@@ -119,7 +120,8 @@ $question = $survey[$current_question];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Survey</title>
-    <?php librariesInclude("bootstrap"); ?>
+    <?php headHook(""); ?>
+    
 </head>
 <body class="survey">
     <?php
@@ -217,6 +219,6 @@ $question = $survey[$current_question];
         </form>
     </div>
 
-   <?php shutdown(); ?>
+   <?php bodyEndHook(); ?>
 </body>
 </html>

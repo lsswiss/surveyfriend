@@ -48,10 +48,11 @@
     }
 
     /**
-     * Inkludiert die Libriaries für die Webseite die früh geladen werden sollen.
+     * Lädt im HTML-Header die Libraries in das HTML-Dokument. Es unterstützt
+     * Libraries, die früh geladen werden sollen. 
      *
      * @return string
-     * @param string $strAdditionalModules Zusätzliche Module, die geladen werden sollen
+     * @param string $strAdditionalModules Zusätzliche Libraries, die geladen werden sollen
      *  (durch Kommas getrennt)
      * 
      *  Beispiel: "animate,font-awesome"
@@ -72,16 +73,20 @@
      * -> Die Module werden nur geladen, wenn sie nicht bereits geladen wurden.
      *
      * - Aktuelles Stylesheet (falls eine .css-Datei mit dem aktuellen PHP-Skriptnamen existiert)
-     * - Zusätzliche Module, die nicht von allen Seiten benötigt werden
+     * - index.css oder main.css (falls vorhanden)
+     * - Zusätzliche Module, die nicht von allen Seiten benötigt werden, können unter
+     *   strAdditionalModules angegeben werden.
      * 
      */
     function librariesInclude($strAdditionalModules = "") {
 
         // Input harmonisieren:
-        $strAdditionalModules = "," . $strAdditionalModules . ",";
-        $strAdditionalModules = lcase($strAdditionalModules);
-        $strAdditionalModules = replace($strAdditionalModules, ".", "");
-        $strAdditionalModules = trim($strAdditionalModules);
+        if ( $strAdditionalModules != "" ) {
+            $strAdditionalModules = "," . $strAdditionalModules . ",";
+            $strAdditionalModules = lcase($strAdditionalModules);
+            $strAdditionalModules = replace($strAdditionalModules, ".", "");
+            $strAdditionalModules = trim($strAdditionalModules);
+        }
 
         $libraries = file_get_contents("lib/libraries.json");
         $libraries = json_decode($libraries, true);
@@ -90,22 +95,30 @@
         foreach ($libraries as $library) {
             if ( $library['loadOnDemand'] ) {
                 // Die Bibliothek wird nur bei Gebrauch geladen...
-
-                // Aus Library-Namen mögliche Punkte (.) entfernen
-                // -> Es soll "chartjs" als Library hinzugefügt werden können, nicht "chart.js".
-                //    Beides soll möglich sein.
-                $libName = lcase($library['name']);
-                $libName = str_replace(".", "", $libName);
-                $libName = trim($libName);
-
-                if ( instr($strAdditionalModules, ",".$libName."," ) ) {
-                    // Die Bibliothek wird jetzt benötigt...
-                    // -> Lade die Bibliothek:
-                    requireLibrary($library['name']);
-                } else {
-                    // Die Bibliothek wird nicht benötigt...
+                if ( $strAdditionalModules == "" ) {
+                    // Es wurden keine zusätzlichen Module angegeben...
                     // -> Lade die Bibliothek nicht:
                     continue;
+                } else {
+                    // Es wurden zusätzliche Module angegeben...
+                    // -> Lade die Bibliothek, wenn sie benötigt wird:
+
+                    // Aus Library-Namen mögliche Punkte (.) entfernen
+                    // -> Es soll "chartjs" als Library hinzugefügt werden können, nicht "chart.js".
+                    //    Beides soll möglich sein.
+                    $libName = lcase($library['name']);
+                    $libName = str_replace(".", "", $libName);
+                    $libName = trim($libName);
+
+                    if ( instr($strAdditionalModules, ",".$libName."," ) ) {
+                        // Die Bibliothek wird jetzt benötigt...
+                        // -> Lade die Bibliothek:
+                        requireLibrary($library['name']);
+                    } else {
+                        // Die Bibliothek wird nicht benötigt...
+                        // -> Lade die Bibliothek nicht:
+                        continue;
+                    }
                 }
             } else {
                 // Die Bibliothek wird immer geladen...
@@ -118,10 +131,22 @@
         // existiert):
         $currentStylesheet = basename($_SERVER['SCRIPT_FILENAME'], '.php') . '.css';
         if (file_exists($currentStylesheet)) {
-            echo '<link href="'.$currentStylesheet.'" rel="stylesheet">';
+            echo '<link rel="stylesheet" href="'.$currentStylesheet.'">';
         } /* else {
             consoleLog("Seitenspezifisches Stylesheet ".$currentStylesheet." existiert nicht!");
         }*/
+
+        // index.css oder main.css (falls vorhanden):
+        if (file_exists("index.css")) {
+            echo '<link rel="stylesheet" href="index.css">';
+        }
+        if (file_exists("main.css")) {
+            echo '<link rel="stylesheet" href="main.css">';
+        }
+        if (file_exists("css/main.css")) {
+            echo '<link rel="stylesheet" href="/css/main.css">';
+        }        
+        
     }
 
     /**
@@ -228,7 +253,7 @@
             if ( $cssLink != "" ) {
                 // CSS-Link hinzufügen:
                 echo "<!-- " . $library['name'] . " -->";
-                echo '<link href="'.$cssLink.'" rel="stylesheet">'."\n";
+                echo '<link rel="stylesheet" href="'.$cssLink.'">'."\n";
             }
             if ( $jsLink != "" ) {
                 if ($jsLateLoad) {
@@ -645,6 +670,42 @@
     }
 
     /**
+    * Führt die im HTML-Header notwendigen Funktionen aus.
+    *
+    * @param string $librariesToExplicitlyLoad Die Libraries, die explizit geladen werden sollen.
+    *               Kommagetrennte Liste, z.B. "animate,font-awesome"
+    *
+    *               Die Libraries müssen in der Datei "lib/libraries.json" definiert sein.
+    *
+    *               -> Die Module werden in der Reihenfolge geladen, wie sie da definiert sind.
+    *               -> Die Module werden nur geladen, wenn sie nicht bereits geladen wurden.
+    *
+    *               -> Module, die "loadOnDemand": true haben, werden nur geladen, wenn sie explizit
+    *                  in $librariesToExplicitlyLoad angegeben sind.
+    *
+    *               -> Module, die "loadOnDemand": false haben, werden immer geladen.
+    *
+    * @return void
+    * @see librariesInclude()
+    */
+    function headHook($librariesToExplicitlyLoad = "") {
+        // Diese Funktion wird im Head-Tag des Dokuments aufgerufen.
+        // -> Hier werden die Libraries geladen:
+        librariesInclude($librariesToExplicitlyLoad);
+    }
+
+    /** 
+     * Führt die Funktionen aus, die vor dem Schliessen des Body-Tags notwendig sind.
+     * Zum Beispiel das Laden von JavaScript-Dateien, die am Ende des Dokuments
+     * geladen werden sollen.
+     */
+    function bodyEndHook() {
+        // Diese Funktion wird am Ende des Body-Tags aufgerufen.
+        // -> Hier werden die Libraries geladen, die später geladen werden sollen.
+        librariesInclude_LateLoad();
+    }
+
+    /**
      * Lädt vor der Beendigung des Dokuments die noch zu ladenden Libraries (JavaScript-Dateien).
      * 
      * shutdown() muss zwingend vor dem Body-Tag im HTML-Dokument aufgerufen werden.
@@ -677,7 +738,9 @@
         }
         if ( !$blnFound ) {
             // Libraries wurden nicht geladen...
+            $ob = ob_get_contents();
             ob_clean();
+            echo str_repeat("*", 80);
             $errText = "<pre>".htmlentities("Fehler: Platzieren Sie die Funktion shutdown() vor dem schliessenden Body-Tag:\n\n"
                 . "...\n"
                 . "...\n"
@@ -686,6 +749,10 @@
                 . "</body>\n"
                 . "</html>\n")."</pre>";
             echo $errText;
+
+            echo str_repeat("*", 80);
+
+            echo '<pre>'.htmlentities($ob).'</pre>';
             exit;
         }
     }
