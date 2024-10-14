@@ -1,5 +1,7 @@
 <?php
 
+use function SurveyFriend\Results\calculateResults;
+
     require_once('lib/mainfunctions.php');
     require_once('lib/surveyfriend.php');
 
@@ -8,12 +10,33 @@
     // Pfad zur JSON-Datei
     $jsonFile = 'charts/chart.json';
 
+    // Benötigte Resultate in der "result"-Sektion des JSON berechnen:
+    calculateResults($jsonFile);
+
     // JSON-Datei einlesen
     $jsonData = file_get_contents($jsonFile);
 
-    // Da wir Platzhalter in der JSON-Datei haben, ersetzen wir diese durch Zahlen-Werte
-    // welche keine Fehler bei der JSON-Dekodierung verursachen...
-    $jsonData = preg_replace('/\$(\w+)/', '12345678', $jsonData);
+    if (isset($_SESSION["result"]) && is_array($_SESSION["result"])) {
+        foreach ($_SESSION["result"] as $key => $value) {
+            consoleLog("`\${$key}`: {$value}");
+            //$jsonData = replace($jsonData, "$".$key, $value);
+            // Nur ganze Wörter ersetzen:
+            $jsonData = preg_replace('/\$'.$key.'\b/', $value, $jsonData);           
+
+        }
+    
+    } else {
+        echo "<p><strong>Hoppla!</strong> Ich finde keine Resultate. Da muss ein Fehler passiert sein.
+                <a href='?startOver'>Hier kannst Du es nochmals erneut probieren</a>.</p>";
+        exit;
+    }
+
+    // Da wir nun noch einen Rest an nicht-verarbeiteten Platzhalter in der
+    // JSON-Datei haben könnten, ersetzen wir diese durch die Zahlenwerte 0.
+    // -> Dies verursacht keine Fehler beim Dekodieren des JSON in ein Array,
+    //    und die Berechnungen werden mit 0 nicht ganz verfälscht in den Charts
+    //    angezeigt.
+    $jsonData = preg_replace('/\$(\w+)/', '0', $jsonData);
 
     $charts = json_decode($jsonData, true);
 
@@ -67,33 +90,6 @@
     
     <?php foreach ($charts as $chartSection): ?>
 
-        <?php if (isset($chartSection['results'])): 
-/*          Unter dem Schlüssel "results" befinden sich die Formeln, die ausgerechnet werden sollen.
-            Die Formeln sind in der JSON-Datei so definiert:
-            { 
-                "results": {
-                    "yearlySavings": "money(12 * (( Q1 + Q4 + Q2 + ( Q3 * Q1 * 0.2 )) - (( Q3 * 50 ) + ( Q4 * 0.1 ))), 0)",
-                    "youPayMonthly": "money(((Q1)*Q3*0.2)+(Q1+Q2), 0)",
-                    "youWouldPayDaily": "money((Q3*50)*12/365, 0)",
-                    "youWouldPayMonthly": "money((Q3*50)*12/12, 0)"
-                }
-            }
-*/
-            // Das ist nun also die "Rechnen"-Sektion.
-            // ->Rechne hier die Resultate aus, die sich aus den
-            //   Punktzahlen der einzelnen Fragen ergeben...
-            $results = $chartSection['results'];
-            foreach($results as $formulaName => $calculation)
-            {
-                // Rechne die Formel aus... und speichere das Resultat in der Session
-                // Merke: getval() speichert das Resultat in $_SESSION["result"][$formulaName]
-                //        Wir müssen also hier nichts mehr weiter speichern...
-                $value = \SurveyFriend\Results\getVal($formulaName, $calculation);
-            }
-        ?>
-
-
-        <?php endif; ?>
         <?php if (isset($chartSection['section'])): 
             // Wir sind in einer zu rendernden Section
             // Und rendern z.B. ein Chart...

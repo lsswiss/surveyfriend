@@ -20,6 +20,13 @@ $survey = json_decode(file_get_contents($fileSurvey), true);
 $current_question = isset($_SESSION['current_question']) ? $_SESSION['current_question'] : 0;
 $answers = isset($_SESSION['answers']) ? $_SESSION['answers'] : [];
 
+if (isset($_REQUEST['startOver'])) {
+    // Neustart des Surveys:
+    session_destroy();
+    header('Location: index.php');
+    exit();
+}
+
 // Weiter oder Zurück
 if (isset($_GET['prev'])) {
     // Zurück zur vorherigen Frage
@@ -28,13 +35,7 @@ if (isset($_GET['prev'])) {
     }
     $_GET['prev'] = 0;
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['startOver'])) {
-        // Neustart
-        session_destroy();
-        header('Location: index.php');
-        exit();
-    
-    } elseif (isset($_POST['next'])) {
+    if (isset($_POST['next'])) {
         // Antwort speichern
         $answers[$current_question] = $_POST['answer'] ?? null;
         $_SESSION['answers'] = $answers;
@@ -53,7 +54,7 @@ if ($current_question == count($survey)) {
     // Wir haben alle Fragen beantwortet, gehe jetzt zum Ergebnis...
     header('Location: result.php');
     exit;
-    
+
     $total = 0;
 
     debug($answers);

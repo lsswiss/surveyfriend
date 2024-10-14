@@ -25,6 +25,9 @@ function q($questionNr) {
 /**
  * Rechnet das Resultat aus des Surveys, mit Formeln und schreibt das Resultat der Formel in
  * $_SESSION["result"][$$formulaName].
+ * 
+ * Die Formeln können Variablen wie Q1, Q2, Q3, etc... enthalten, welche sich auf die Punktzahlen
+ * der beantworteten Fragen beziehen.
  *
  * @param  string $formulaName
  * @param  string $formula
@@ -34,7 +37,7 @@ function q($questionNr) {
 function getVal($formulaName, $formula) {
     global $gFunctions;
 
-    // Extract variables from the formula
+    // Extract variables like Q1, Q2, etc... from the formula:
     $originalFormula = $formula;
     preg_match_all('/Q\d+/', $formula, $matches);
     $variables = array_unique($matches[0]);
@@ -276,10 +279,11 @@ function calculateResults($chartsJsonFile)
     // Nach dem Schlüssel "results" suchen:
     foreach ($charts as $chartSection) {
         if (isset($chartSection['results'])) {
-            // Wir sind in der Sektion mit den Resultaten, die ausgerechnet werden sollen...
+            // Wir sind in einer Sektion mit Resultaten, die ausgerechnet werden sollen...
             //
-            // ->Rechne diese Resultate aus, die sich aus den Punktzahlen der einzelnen Fragen
-            //   ergeben...
+            // ->Rechne diese Resultate aufgrund der angegebenenen Formeln aus:
+            //   Die für die Resultate benötigten Formeln können Variablen wie Q1, Q2, Q3, etc...
+            //   enthalten, welche sich auf die Punktzahlen der beantworteten Fragen beziehen.
             $results = $chartSection['results'];
 
             // Jede einzelne Formel ausrechnen:
@@ -288,7 +292,7 @@ function calculateResults($chartsJsonFile)
                 // Rechne die Formel aus... und speichere das Resultat in der Session
                 // Merke: getval() speichert das Resultat in $_SESSION["result"][$formulaName]
                 //        Wir müssen also hier nichts mehr weiter speichern...
-                $value = \SurveyFriend\Results\getVal($formulaName, $calculation);
+                $value = getVal($formulaName, $calculation);
             }
         }
     }
