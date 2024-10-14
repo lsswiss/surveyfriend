@@ -73,6 +73,11 @@
      */
     function libraries($strAdditionalModules = "") {
 
+        // Festhalten, dass die Libraries bereits geladen wurden.
+        // -> Dies wird beim Beenden des Dokuments geprüft.
+        global $globalLibrariesprocessed;
+        $globalLibrariesprocessed = true;
+
         // Input harmonisieren:
         if ( $strAdditionalModules != "" ) {
             $strAdditionalModules = "," . $strAdditionalModules . ",";
@@ -644,7 +649,7 @@
     
     //VB6 Equivalent of strlen
     function len($str) {
-        return strlen($str);
+        return mb_strlen($str);
     }
 
     /**
@@ -755,6 +760,15 @@
     function documentEndChecks() {
         // Diese Hook wird am Ende des Dokuments aufgerufen.
         // -> Hier prüfen wir ein paar Dinge, ob alles richtig gelaufen ist.
+
+        // Initialisierung:
+        // Hat der Benutzer die Funktion libraries() aufgerufen?
+        global $globalLibrariesprocessed;
+
+        // Falls nein, gehen wir gleich raus ohne weiteren Checks, denn dies
+        // würde z.B. bei auf AJAX basierenden Seiten, die keine Libraries benötigen,
+        // zu einem Fehler führen und könnte auch beim Debuggen störend sein...
+        if ( !$globalLibrariesprocessed) exit;
 
         // 1. Der Benutzer hat die Funktion libraries_LateLoad() aufgerufen?
         global $globalLateLoadedLibrariesProcessed;
@@ -946,30 +960,27 @@
      */
     function money($value, $mixed_currency_symbol_OR_round_precision = null) {
         // Wird ein Währungssymbol übergeben?
-        consoleLog("Param2:".$mixed_currency_symbol_OR_round_precision);
         if ( is_null($mixed_currency_symbol_OR_round_precision) ) {
             $currency_symbol = "";
             $round_precision = 2;
-            consoleLog("ohne angabe");
 
         } elseif (is_numeric($mixed_currency_symbol_OR_round_precision)) {
             $currency_symbol = "";
             $round_precision = $mixed_currency_symbol_OR_round_precision;
-            consoleLog("precision: ".$mixed_currency_symbol_OR_round_precision);
 
         } else {
             $currency_symbol = $mixed_currency_symbol_OR_round_precision;
             $round_precision = 2;
         }
 
-        if ( strlen($currency_symbol) == 1 ) {
+        if ( len($currency_symbol) == 1 ) {
             // € 36.50
-            return $currency_symbol . " ". number_format($value, $round_precision, ',', '.');
+            return $currency_symbol . " ". number_format($value, $round_precision, '.', ',');
         } elseif ( strlen($currency_symbol) > 1 ) {
             // 36.50 CHF
-            return number_format($value, $round_precision, ',', '.'). " " . $currency_symbol;
+            return number_format($value, $round_precision, '.', ','). " " . $currency_symbol;
         } else {
             // 36.50
-            return number_format($value, $round_precision, ',', '.');
+            return number_format($value, $round_precision, '.', ',');
         }
     }

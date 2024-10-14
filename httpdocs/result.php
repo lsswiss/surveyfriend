@@ -1,20 +1,27 @@
 <?php
 
+    require_once('lib/mainfunctions.php');
+    require_once('lib/surveyfriend.php');
+
+    session_start();
+
     // Pfad zur JSON-Datei
     $jsonFile = 'charts/chart.json';
 
     // JSON-Datei einlesen
     $jsonData = file_get_contents($jsonFile);
+
+    // Da wir Platzhalter in der JSON-Datei haben, ersetzen wir diese durch Zahlen-Werte
+    // welche keine Fehler bei der JSON-Dekodierung verursachen...
+    $jsonData = preg_replace('/\$(\w+)/', '12345678', $jsonData);
+
     $charts = json_decode($jsonData, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-        die('Fehler beim Lesen der JSON-Datei. Bitte überprüfen Sie die Datei: ' . $jsonFile);
+        $msg = 'Fehler beim Lesen der JSON-Datei <strong>`'. $jsonFile.'`</strong>. Bitte validieren Sie die Datei unter <strong><a href="https://jsonlint.com">https://jsonlint.com</a></strong>. Fehler: <strong>'. json_last_error_msg()."</strong>";
+        consoleLog(strip_tags($msg));
+        die($msg);
     }
-
-    require_once('lib/mainfunctions.php');
-    require_once('lib/surveyfriend.php');
-
-    session_start();
 
 ?>
 
@@ -36,7 +43,7 @@
 <body class="charts">
 
 <!-- Debug Section -->
-<div class="container mt-5">
+<div class="container mt-5" style="max-width: 50%;">
     <div class="card mb-4">
         <div class="card-body">
             <h2 class="card-title">Debug</h2>
@@ -61,14 +68,27 @@
     <?php foreach ($charts as $chartSection): ?>
 
         <?php if (isset($chartSection['results'])): 
-            // Das ist die "Rechnen"-Sektion.
+/*          Unter dem Schlüssel "results" befinden sich die Formeln, die ausgerechnet werden sollen.
+            Die Formeln sind in der JSON-Datei so definiert:
+            { 
+                "results": {
+                    "yearlySavings": "money(12 * (( Q1 + Q4 + Q2 + ( Q3 * Q1 * 0.2 )) - (( Q3 * 50 ) + ( Q4 * 0.1 ))), 0)",
+                    "youPayMonthly": "money(((Q1)*Q3*0.2)+(Q1+Q2), 0)",
+                    "youWouldPayDaily": "money((Q3*50)*12/365, 0)",
+                    "youWouldPayMonthly": "money((Q3*50)*12/12, 0)"
+                }
+            }
+*/
+            // Das ist nun also die "Rechnen"-Sektion.
             // ->Rechne hier die Resultate aus, die sich aus den
-            //   Punktzahlen der einzelnen Fragen ergeben.
+            //   Punktzahlen der einzelnen Fragen ergeben...
             $results = $chartSection['results'];
             foreach($results as $formulaName => $calculation)
             {
-                // Rechne die Formel aus...
-                echo "<br>globi:".$formulaName."=>".$calculation." = ".\SurveyFriend\Results\getVal($formulaName, $calculation);
+                // Rechne die Formel aus... und speichere das Resultat in der Session
+                // Merke: getval() speichert das Resultat in $_SESSION["result"][$formulaName]
+                //        Wir müssen also hier nichts mehr weiter speichern...
+                $value = \SurveyFriend\Results\getVal($formulaName, $calculation);
             }
         ?>
 
@@ -218,10 +238,10 @@
                                     ?>";
                     var blnChartDisplay = ChartTitle.length > 0 ? true : false;
 
-                    console.log(chartData);
-                    console.log(chartType);
-
-                    console.table(chartData); // Debugging chartData
+                    // Debugging chartData:
+                    // console.log(chartData);
+                    // console.log(chartType);
+                    // console.table(chartData);
                     
                     // Chart.js Initialisierung
                     var ctx = document.getElementById('<?php echo $chartId; ?>').getContext('2d');

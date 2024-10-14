@@ -32,6 +32,8 @@ function q($questionNr) {
  * @author Urs Langmeier
  */
 function getVal($formulaName, $formula) {
+    global $gFunctions;
+
     // Extract variables from the formula
     $originalFormula = $formula;
     preg_match_all('/Q\d+/', $formula, $matches);
@@ -41,14 +43,13 @@ function getVal($formulaName, $formula) {
 
     // Replace variables with their values from the session
     foreach ($variables as $variable) {
-        echo 'var:'.$variable;
         if (isset($_SESSION['result'][$variable])) {
             $formula = str_replace($variable, $_SESSION['result'][$variable], $formula);
         } else {
             // Handle the case where the variable is not set in the session
             $_SESSION["result"][$variable] = q(intval(substr($variable, 1)));
             $formula = str_replace($variable, $_SESSION['result'][$variable], $formula);
-            debug($_SESSION["result"]);
+            //debug($_SESSION["result"]);
         }
     }
 
@@ -61,7 +62,8 @@ function getVal($formulaName, $formula) {
 
     // Cut the functions out of the formula, so that the formula only contains the formula
     // No round, ceil, floor, sin, cos, tan, sqrt, log, exp, abs, min, max, pow, rand
-    if ( isset($gFunctions) ) unset($gFunctions);
+    $gFunctions = []; // Reset the global functions array
+
     $formula = cutFunctions($formula);
 
     // Evaluate the formula:
@@ -82,7 +84,6 @@ function getVal($formulaName, $formula) {
         $result = runFunctionOnValue($result);
 
         // Save the result in the session
-        echo 'eval of '.$formula.':'.$result. " KKKK ";
         $_SESSION["result"][$formulaName] = $result;
 
         // Für debug-Zwecke speichern wir die Formel und das Resultat:
@@ -92,11 +93,10 @@ function getVal($formulaName, $formula) {
         consoleLog('Result of formula `'.$formulaName. '`:'
                     .'\nFormula: '.$originalFormula
                     .'\nEvaluates to: '.$formula
-                    .'\nResult: ' . $result, false);        
+                    .'\nResult: ' . $result, false);
+
+        return $result;
     }
-
-
-    
     
     // // Evaluate the formula with Eval (not recommended, but works)
     // try {
@@ -144,12 +144,9 @@ function getVal($formulaName, $formula) {
  */
 function cutFunctions($formula) {
     global $gFunctions;
-    
-    // Important:
-    // In case we do not have a function in our formula,
-    // we do not want to provide the global functions array.
-    // Therefore we unset it here for initialization:
-    if ( isset($gFunctions) ) unset($gFunctions);
+
+    // Initialisiere mit leerem Array:
+    $gFunctions = [];
 
     $functions = ['sin', 'cos', 'tan', 'sqrt', 'log', 'exp', 'abs'
                 , 'round', 'floor', 'ceil', 'min', 'max', 'pow', 'rand'
@@ -157,6 +154,7 @@ function cutFunctions($formula) {
                 , 'number_format', 'money'];
     foreach ($functions as $function) {
         if (strpos($formula, $function) !== false) {
+            
             $formula = getPartOfString($formula, $function, "");
             $formula = getPartOfString_OpenToClose($formula, "(", ")");
             $param = getPartOfString($formula, ",", "");
@@ -166,10 +164,18 @@ function cutFunctions($formula) {
             $param = trim($param);
             $param = trim($param, '"');
             $param = trim($param, "'");
-
+            
+            // consoleLog('cutFunctions: '.$function.'('.$param.')', false);
+            
             $gFunctions["function"] = $function;
             $gFunctions["formula"] = $formula;
             $gFunctions["param"] = $param;
+
+            // Debug:
+            //debug("cut functions: ");
+            //debug($gFunctions);
+
+            break;
 
         }
     }
@@ -198,17 +204,25 @@ function runFunctionOnValue($value) {
         // Funktionsname vom zuvor mit ->cutFunctions() erstellten Array holen:
         $functionName = $gFunctions["function"];
 
+        // Debug:
+        // debug("add function: ");
+        // debug($gFunctions);
+
         try {
             if ( $gFunctions["param"] != null ) {
                 // Function with param:
                 $formula = $gFunctions["formula"];
                 $param = $gFunctions["param"];
                 $result = $functionName($value, $param);
+
+                //consoleLog('Function with param: '.$functionName.'('.$value.', '.$param.')', false);
                 
             } else {
                 // Function without param:
                 $formula = $gFunctions["formula"];
                 $result = $functionName($value);
+
+                //consoleLog('Function w/o param: '.$functionName.'('.$value.')', false);
                 
             }
             return $result;
@@ -221,5 +235,61 @@ function runFunctionOnValue($value) {
         // Keine vorher ausgeschnittenen Funktionen gefunden,
         // also einfach den Wert zurückgeben:
         return $value;
+    }
+}
+
+/**
+ * Kalkuliert die Resultate des Surveys und speichert sie in $_SESSION["result"].
+ * Alle im charts.json unter "results" definierten Formeln werden berechnet und
+ * in $_SESSION["result"] gespeichert.
+ *
+ * @return str 
+ * @author Urs Langmeier
+ */
+function calculateResults($chartsJsonFile)
+{
+    // JSON-Datei einlesen
+    $jsonData = file_get_contents($chartsJsonFile);
+
+    // Da wir Platzhalter in der JSON-Datei haben, ersetzen wir diese durch Zahlen-Werte
+    // welche keine Fehler bei der JSON-Dekodierung verursachen...
+    $jsonData = preg_replace('/\$(\w+)/', '12345678', $jsonData);
+
+    $charts = json_decode($jsonData, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $msg = 'Fehler beim Lesen der JSON-Datei <strong>`'. $jsonFile.'`</strong>. Bitte validieren Sie die Datei unter <strong><a href="https://jsonlint.com">https://jsonlint.com</a></strong>. Fehler: <strong>'. json_last_error_msg()."</strong>";
+        consoleLog(strip_tags($msg));
+        die($msg);
+    }
+
+    // Unter dem Schlüssel "results" befinden sich die Formeln, die ausgerechnet werden sollen.
+    // Die Formeln sind in der JSON-Datei so definiert:
+    // { 
+    //     "results": {
+    //         "yearlySavings": "money(12 * (( Q1 + Q4 + Q2 + ( Q3 * Q1 * 0.2 )) - (( Q3 * 50 ) + ( Q4 * 0.1 ))), 0)",
+    //         "youPayMonthly": "money(((Q1)*Q3*0.2)+(Q1+Q2), 0)",
+    //         "youWouldPayDaily": "money((Q3*50)*12/365, 0)",
+    //         "youWouldPayMonthly": "money((Q3*50)*12/12, 0)"
+    //     }
+    // }
+    // Nach dem Schlüssel "results" suchen:
+    foreach ($charts as $chartSection) {
+        if (isset($chartSection['results'])) {
+            // Wir sind in der Sektion mit den Resultaten, die ausgerechnet werden sollen...
+            //
+            // ->Rechne diese Resultate aus, die sich aus den Punktzahlen der einzelnen Fragen
+            //   ergeben...
+            $results = $chartSection['results'];
+
+            // Jede einzelne Formel ausrechnen:
+            foreach($results as $formulaName => $calculation)
+            {
+                // Rechne die Formel aus... und speichere das Resultat in der Session
+                // Merke: getval() speichert das Resultat in $_SESSION["result"][$formulaName]
+                //        Wir müssen also hier nichts mehr weiter speichern...
+                $value = \SurveyFriend\Results\getVal($formulaName, $calculation);
+            }
+        }
     }
 }

@@ -1,9 +1,10 @@
 [ 
     { 
         "results": {
-            "yearlySavings": "money(12 * (( Q1 + Q4 + Q2 + ( Q3 * Q1 * 0.2 )) - (( Q3 * 50 ) + ( Q4 * 0.1 ))))",
-            "youPayMonthly": "money(((Q1)*Q3*0.2)+(Q1+Q2))",
-            "youWouldPay": "money((Q3*50)*12/365,'CHF')"
+            "yearlySavings": "money(12 * (( Q1 + Q4 + Q2 + ( Q3 * Q1 * 0.2 )) - (( Q3 * 50 ) + ( Q4 * 0.1 ))), 0)",
+            "youPayMonthly": "money(((Q1)*Q3*0.2)+(Q1+Q2), 0)",
+            "youWouldPayDaily": "money((Q3*50)*12/365, 0)",
+            "youWouldPayMonthly": "money((Q3*50)*12/12, 0)"
         }
     },
     {
@@ -19,18 +20,18 @@
 
     {
         "section": {
-            "title": "So viel Geld sparst Du im Vergleich zum Mitbewerb",
-            "desc": "Andere Unternehmen geben im Vergleich zu dir aus...",
+            "title": "So viel Geld sparst Du, wenn Dein Unternehmen auf aBusiness Suite setzt:",
+            "desc": "Monatliche Kosten mit und ohne aBusiness Suite",
             "class": "",
 
             "chart": {
                 "type": "pie",
                 "title": null,
                 "data": {
-                    "labels": ["Ihr Unternehmen", "Unternehmen ohne SaaS-Lösungen"],
+                    "labels": ["Mit aBusiness Suite", "Ohne aBusiness Suite"],
                     "datasets": [{
                         "label": "Kosten monatlich",
-                        "data": [500, 4500]
+                        "data": [$youWouldPayMonthly, $youPayMonthly]
                     }]
                 }
             }
@@ -51,7 +52,7 @@
                     "labels": ["Mit aBusiness", "Ohne aBusiness"],
                     "datasets": [{
                         "label": "Kosten monatlich",
-                        "data": [500, 4500]
+                        "data": [$youWouldPayMonthly, $youPayMonthly]
                     }]
                 }
             },
@@ -68,7 +69,7 @@
 
     {
         "section": {
-            "title": "Deine jährliche Ersparnis, wenn dein Geschäft aBusiness Suite verwenden würde: <strong>85,618.-- Schweizer Franken</strong>",
+            "title": "Deine jährliche Ersparnis, wenn dein Geschäft aBusiness Suite verwenden würde: <strong>$yearlySavings.-- Schweizer Franken</strong>",
             "class": "",
             "desc": "<h4>Mehrere Schweizer Unternehmen wie Deines haben dieses Sparpotential bereits entdeckt.</h4>",
             "image": "/assets/savings.png",
@@ -79,7 +80,7 @@
 
     {
         "section": {
-            "title": "Deine potentielle Umsatzentwicklung mit aBusiness",
+            "title": "Deine potentielle Zeitersparnis mit aBusiness",
             "desc": "",
             "class": "",
 
@@ -87,10 +88,10 @@
                 "type": "line",
                 "title": null,
                 "data": {
-                    "labels": ["Ihr Unternehmen", "Unternehmen ohne SaaS-Lösungen"],
+                    "labels": ["Ohne aBusiness", "Mit aBusiness"],
                     "datasets": [{
-                        "label": "Umsatz monatlich",
-                        "data": [500, 4500]
+                        "label": "Zeitersparnis in Stunden, jede Woche",
+                        "data": [0, 20]
                     }]
                 }
             }
@@ -101,7 +102,7 @@
     {
         "section":{
             "title": "Gut zu wissen:",
-            "desc": "<p>aBusiness Suite ist eine All-in-One-Software-Lösung für KMU und Selbständige, die alle wichtigen Funktionen in einem einzigen Programm vereint.</p><ul><li><p>aBusiness-Anwender sparen bis zu 90% ihrer Buchhaltungs-Kosten dank KI-automatisierter Buchführung.</p></li><li><p>Du bezahlst aktuell mindestens 34.-- pro Monat für deine verschiedenen im Einsatz befindlichen Software-Lösungen.</p></li><li><p>Würdest Du aBusiness Suite einsetzen, dann würdest Du für alle Benutzer zusammen nur noch 8.-- pro Tag bezahlen, und Du würdest künftig für Software-Lösungen viel Geld sparen, da aBusiness verschiedene Software-Lösungen in einem einzigen Programm vereint.</p></li><li><p>Erziele unschätzbare Zeitgewinne, dank der in der Software integrierten und zahlreichen internen Verknüpfungen, die das rasche Teilen von Informationen über alle Abteilungen hinweg ermöglichen.</p></li></ul>"
+            "desc": "<p>aBusiness Suite ist eine All-in-One-Software-Lösung für KMU und Selbständige, die alle wichtigen Funktionen in einem einzigen Programm vereint.</p><ul><li><p>aBusiness-Anwender sparen bis zu 90% ihrer Buchhaltungs-Kosten dank KI-automatisierter Buchführung.</p></li><li><p>Du bezahlst mindestens $youPayMonthly.-- pro Monat für die verschiedenen Software-Lösungen die du einsetzen willst.</p></li><li><p>Würdest Du statt dieser Software-Lösungen aBusiness Suite einsetzen, dann würdest Du für alle Benutzer zusammen nur noch $youWouldPayDaily.-- pro Tag bezahlen, und Du würdest künftig für Software-Lösungen viel Geld sparen, da aBusiness verschiedene Software-Lösungen in einem einzigen Programm vereint.</p></li><li><p>Erziele dazu noch unschätzbare Zeitgewinne, dank der in der Software integrierten und zahlreichen internen Verknüpfungen, die das rasche Teilen von Informationen über alle Abteilungen hinweg ermöglichen.</p></li></ul>"
         }
     
     },
