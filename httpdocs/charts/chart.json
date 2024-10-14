@@ -50,6 +50,27 @@
             "class": "",
 
             "chart": {
+                "type": "bar",
+                "title": null,
+                "data": {
+                    "labels": ["Mit aBusiness", "Ohne aBusiness"],
+                    "datasets": [{
+                        "label": "Kosten monatlich",
+                        "data": [$youWouldPayMonthly, $youPayMonthly],
+                        "backgroundColor": ["#0776bf", "#e50b0b"]
+                    }]
+                }
+            }
+        }
+    },
+
+    {
+        "section": {
+            "title": "",
+            "desc": "Dir entgeht eine grosse Ersparnis:",
+            "class": "",
+
+            "chart": {
                 "type": "pie",
                 "title": null,
                 "data": {
@@ -57,27 +78,6 @@
                     "datasets": [{
                         "label": "Kosten monatlich",
                         "data": [ $youWouldPayMonthly , $youPayMonthly ]
-                    }]
-                }
-            }
-        }
-
-    },
-
-    {
-        "section": {
-            "title": "So viel Geld sparst Du, wenn Dein Unternehmen auf aBusiness Suite setzt:",
-            "desc": "Monatliche Kosten mit und ohne aBusiness Suite",
-            "class": "",
-
-            "chart": {
-                "type": "bar",
-                "title": null,
-                "data": {
-                    "labels": ["Mit aBusiness", "Ohne aBusiness"],
-                    "datasets": [{
-                        "label": "Kosten monatlich",
-                        "data": [$youWouldPayMonthly, $youPayMonthly]
                     }]
                 }
             },
@@ -90,11 +90,12 @@
 				}
 			]
         }
-    },
+
+    },    
 
     {
         "section": {
-            "title": "Deine jährliche Ersparnis, wenn dein Geschäft aBusiness Suite verwenden würde: <strong>money($yearlySavings).– Schweizer Franken</strong>",
+            "title": "Deine jährliche Ersparnis, wenn dein Geschäft aBusiness Suite verwenden würde: <strong>money($yearlySavings)</strong>",
             "class": "",
             "desc": "<h4>Mehrere Schweizer Unternehmen wie Deines haben dieses Sparpotential bereits entdeckt.</h4>",
             "image": "/assets/savings.png",
@@ -106,7 +107,7 @@
     {
         "section": {
             "title": "Deine potentielle Zeitersparnis mit aBusiness",
-            "desc": "",
+            "desc": "Gemäss unseren Kunden sparen sie durchschnittlich 20 Stunden pro Woche mit aBusiness Suite.",
             "class": "",
 
             "chart": {

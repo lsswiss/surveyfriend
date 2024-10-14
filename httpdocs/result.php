@@ -1,6 +1,7 @@
 <?php
 
 use function SurveyFriend\Results\calculateResults;
+use function SurveyFriend\Results\handleJsonErrors;
 use function SurveyFriend\Results\setNumberFormatsInDocument;
 
     require_once('lib/mainfunctions.php');
@@ -56,11 +57,7 @@ use function SurveyFriend\Results\setNumberFormatsInDocument;
     // --------------------------------------------------
     $charts = json_decode($jsonData, true);
 
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        $msg = 'Fehler beim Lesen der JSON-Datei <strong>`'. $jsonFile.'`</strong>. Bitte validieren Sie die Datei unter <strong><a href="https://jsonlint.com">https://jsonlint.com</a></strong>. Fehler: <strong>'. json_last_error_msg()."</strong>";
-        consoleLog(strip_tags($msg));
-        die($msg);
-    }
+    handleJsonErrors($jsonFile, $jsonData, true);
 
 ?>
 
@@ -82,25 +79,27 @@ use function SurveyFriend\Results\setNumberFormatsInDocument;
 <body class="charts">
 
 <!-- Debug Section -->
-<div class="container mt-5" style="max-width: 50%;">
-    <div class="card mb-4">
-        <div class="card-body">
-            <h2 class="card-title">Debug</h2>
+<?php if ( isset($_GET['debug']) ): ?>
+    <div class="container mt-5" style="max-width: 50%;">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Debug</h2>
 
-            <h4 class="card-text">Session:</h4>
-            <pre><?php print_r($_SESSION); ?></pre>
+                <h4 class="card-text">Session:</h4>
+                <pre><?php print_r($_SESSION); ?></pre>
 
-            <?php
-                debug($_SESSION['answers']);
+                <?php
+                    debug($_SESSION['answers']);
 
-                debug("Antwort 1: ".\SurveyFriend\Results\q(1));
-                debug("Antwort 2: ".\SurveyFriend\Results\q(2));
-                debug("Antwort 3: ".\SurveyFriend\Results\q(3));
-                debug("Antwort 4: ".\SurveyFriend\Results\q(4));
-            ?>
+                    debug("Antwort 1: ".\SurveyFriend\Results\q(1));
+                    debug("Antwort 2: ".\SurveyFriend\Results\q(2));
+                    debug("Antwort 3: ".\SurveyFriend\Results\q(3));
+                    debug("Antwort 4: ".\SurveyFriend\Results\q(4));
+                ?>
+            </div>
         </div>
     </div>
-</div>
+<?php endif; ?>
 
 <div class="container mt-5">
     

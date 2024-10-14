@@ -261,18 +261,18 @@ function calculateResults($chartsJsonFile)
     // Nummer-Formate:
     // =================
     // Nun suchen wir die gewünschten Formatierungsfunktionen wie money(), number()
-    // usw., und führen diese auf das Dokument aus. Denn, auch diese Funktionen
-    // können beim Parsern der JSON-Datei einen Syntax-Fehler hervorrufen:
-    setNumberFormatsInDocument($jsonData);
+    // usw., und führen diese auf das Dokument aus mit einem Dummy-Wert.
+    // Denn, auch diese Funktionen können beim Parsern der JSON-Datei einen
+    // Syntax-Fehler hervorrufen:
+    $jsonData = preg_replace_callback('/(\w+)\((\d+(\.\d+)?)\)/'
+                                    , function($matches) { return 987654321; }
+                                    , $jsonData
+                                    );
 
-
+    // Die fertig aufbereiteten JSON-Daten nun in ein Array laden:
     $charts = json_decode($jsonData, true);
 
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        $msg = 'Fehler beim Lesen der JSON-Datei <strong>`'. $chartsJsonFile.'`</strong>. Bitte validieren Sie die Datei unter <strong><a href="https://jsonlint.com">https://jsonlint.com</a></strong>. Fehler: <strong>'. json_last_error_msg()."</strong>";
-        consoleLog(strip_tags($msg));
-        die($msg);
-    }
+    handleJsonErrors($chartsJsonFile, $jsonData, true);
 
     // Unter dem Schlüssel "results" befinden sich die Formeln, die ausgerechnet werden sollen.
     // Die Formeln sind in der JSON-Datei so definiert:
@@ -375,21 +375,18 @@ function numberFormat($arSettings, $format, $value) {
  * @author Urs Langmeier
  */
 function setNumberFormatsInDocument(&$jsonData) {
-    $arSections = json_decode($jsonData, true);
 
-    // Nach dem Schlüssel "numberFormats" suchen:
-    $blnFound = false;
-    $arSettingsNumberFormats = [];
-    foreach ($arSections as $section) {
-        if (isset($section['numberFormats'])) {
-            // Wir sind in der Sektion mit den Nummer-Formaten...
-            $arSettingsNumberFormats = $section['numberFormats'];
-            $blnFound = true;
-            break;
-        }
-    }
-    if ( $blnFound ) {
-        $jsonData = preg_replace_callback('/(\w+)\((\d+(\.\d+)?)\)/'
+    // Hol die Sektion "numberFormats" aus den JSON-Daten:
+    // 1. Bereich ab "numberFormats" suchen:
+    $jsonNumberFormats = getPartOfString($jsonData, '"numberFormats"',"");
+    $jsonNumberFormats = "{".getPartOfString_OpenToClose($jsonNumberFormats, "{", "}")."}";
+
+    consoleLog('NumberFormats: '.$jsonNumberFormats, false);
+
+    $arSettingsNumberFormats = json_decode($jsonNumberFormats, true);
+
+    if ( is_array($arSettingsNumberFormats) ) {
+        $jsonData = preg_replace_callback('/(\w+)\(((-)?\d+(\.\d+)?)\)/'
                         , function($matches)
                           use ($arSettingsNumberFormats)
                         {
@@ -401,4 +398,41 @@ function setNumberFormatsInDocument(&$jsonData) {
     } /* else: Nummerformate nicht definiert im Schlüssel "numberFormats"...
                -> Das Dokument braucht also keine spezifischen Nummernformate.
     */
+}
+
+/**
+ * The function will check the last JSON error and display an error message in the browser
+ * allowing the user to fix any issues.
+ * 
+ * The function will die if the $blnDie parameter is set to true.
+ * 
+ * If there are no JSON errors, the function will return without doing anything.
+ *
+ * @param string $jsonFileName The name of the JSON file being checked.
+ * @param  string $jsonData    The JSON that could have throwed an error.
+ * @param  bool $blnDie        If true, the script will die after displaying the error message.
+ * @return str 
+ * @author Urs Langmeier
+ * 
+ */
+function handleJsonErrors($jsonFileName, $jsonData, $blnDie = false)
+{
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $msg = '[1] <strong>'. json_last_error_msg().'</strong> - The rendered JSON from <strong>`'. $jsonFileName .'`</strong> is not valid. Please validate the JSON at <strong><a href="https://jsonlint.com">https://jsonlint.com</a></strong>.';
+        consoleLog(strip_tags($msg));
+        echo '<h1 style="color:brown">'.$msg.'</h1>';
+        echo '<button onclick="copyToClipboard()">Copy JSON</button><br>';
+        echo '<script>
+        function copyToClipboard() {
+            var textArea = document.getElementById("json");
+            textArea.select();
+            document.execCommand("copy");
+            alert("JSON copied to clipboard!");
+        }
+        </script>';
+        echo '<textarea id="json" style="border:3px dashed brown;margin:20px 0 0 0;padding:0;width:calc(100vw - 20px);height:calc(100vh - 200px);">'. htmlentities($jsonData).'</textarea>';
+        if ( $blnDie ) {
+            die();
+        }
+    }
 }

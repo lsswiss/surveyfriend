@@ -340,11 +340,17 @@
      * @author Urs Langmeier
      */
     function consoleLog($message, $blnError = false) {
-        $message = replace($message, "'", "\'");
+        $message = str_replace("\n", '\n', $message);
+        $message = str_replace("\r", '\r', $message);
+        $message = str_replace('"', '\"', $message);
+        $message = str_replace("'", "\'", $message);
+
         if ( $blnError ) {
-            echo "<script>console.error('$message');</script>";
+            // Fehler anzeigen:
+            echo "<script>console.error('" . $message . "');</script>";
         } else {
-            echo "<script>console.log('$message');</script>";
+            // Normale Meldung:
+            echo "<script>console.log('". $message . "');</script>";
         }
     }
 

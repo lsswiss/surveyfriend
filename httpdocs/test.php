@@ -4,6 +4,99 @@ use function SurveyFriend\Results\runFunctionOnValue;
 require_once('lib/mainfunctions.php');
 include('lib/surveyfriend.php');
 
+function validate_json($jsonString) {
+    // Attempt to decode the JSON
+    json_decode($jsonString, ,,);
+    
+    // Check for JSON errors
+    switch (json_last_error()) {
+        case JSON_ERROR_NONE:
+            return 'JSON is valid';
+        case JSON_ERROR_DEPTH:
+            return 'Error: Maximum stack depth exceeded';
+        case JSON_ERROR_STATE_MISMATCH:
+            return 'Error: Underflow or the modes mismatch';
+        case JSON_ERROR_CTRL_CHAR:
+            return 'Error: Unexpected control character found';
+        case JSON_ERROR_SYNTAX:
+            // Attempt to find and report the syntax error
+            return get_json_syntax_error_details($jsonString);
+        case JSON_ERROR_UTF8:
+            return 'Error: Malformed UTF-8 characters, possibly incorrectly encoded';
+        default:
+            return 'Error: Unknown JSON error occurred';
+    }
+}
+
+// Function to find and display detailed syntax error
+function get_json_syntax_error_details($jsonString) {
+    // Perform a manual scan for common JSON syntax issues
+    // Like missing commas, incorrect brackets, or bad structure
+    $position = find_error_position($jsonString);
+    
+    if ($position !== null) {
+        $line = get_line_number($jsonString, $position);
+        $errorSnippet = get_json_error_snippet($jsonString, $position);
+        return "Syntax error on line $line:\n$errorSnippet\n" . str_repeat('-', $position - max(0, strpos($errorSnippet, "\n"))) . "^\n";
+    }
+
+    return 'Error: Syntax error in JSON, but exact position could not be determined.';
+}
+
+// Helper function to calculate line number from a character position
+function get_line_number($jsonString, $position) {
+    return substr_count(substr($jsonString, 0, $position), "\n") + 1;
+}
+
+// Helper function to get a snippet around the error position for better context
+function get_json_error_snippet($jsonString, $position, $contextLength = 40) {
+    $start = max(0, $position - $contextLength);
+    $length = min(strlen($jsonString) - $start, 2 * $contextLength);
+    return substr($jsonString, $start, $length);
+}
+
+// Function to simulate finding error position (manual scan)
+function find_error_position($jsonString) {
+    // This could be a manual scan to look for common JSON issues (like misplaced commas, brackets, etc.)
+    // For now, we'll assume it starts near the first unexpected character
+    $tokens = preg_split('//u', $jsonString, -1, PREG_SPLIT_NO_EMPTY);
+    
+    $stack = [];
+    $inString = false;
+    for ($i = 0; $i < count($tokens); $i++) {
+        $token = $tokens[$i];
+
+        if ($token === '"') {
+            $inString = !$inString;  // Toggle string context
+        }
+
+        if (!$inString) {
+            if ($token === '{' || $token === '[') {
+                array_push($stack, $token);
+            } elseif ($token === '}' || $token === ']') {
+                $expected = $token === '}' ? '{' : '[';
+                if (array_pop($stack) !== $expected) {
+                    return $i;  // Error position detected
+                }
+            }
+        }
+    }
+
+    return null;  // No specific error found, fall back to basic message
+}
+
+
+$jsonString = '{
+    "name": "Product"
+    "data": [ 1000 , 2372 ]
+}';
+
+echo validate_json($jsonString);
+
+
+
+exit;
+
 function formatNumber($wishedFormat, $number) {
     switch ($wishedFormat) {
         case 'money':
