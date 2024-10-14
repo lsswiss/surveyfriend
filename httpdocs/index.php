@@ -49,9 +49,15 @@ if (isset($_GET['prev'])) {
     }
 }
 
-// Berechnen der Gesamtpunkte
 if ($current_question == count($survey)) {
+    // Wir haben alle Fragen beantwortet, gehe jetzt zum Ergebnis...
+    header('Location: result.php');
+    exit;
+    
     $total = 0;
+
+    debug($answers);
+
     foreach ($answers as $key => $answer) {
         if (isset($answer) && is_array($answer)) {
             // Addiere die Punkte für jede gewählte Option
@@ -101,12 +107,12 @@ if ($current_question == count($survey)) {
 
     ?>
         <form method="POST">
-            <button type="submit" name="startOver" class="btn btn-primary">Neu beginnen</button>
+            <button type="submit" name="startOver" class="btn btn-primary">Test neu beginnen</button>
         </form>
     <?php
 
     shutdown();
-    session_destroy();
+    //session_destroy();
     exit();
 }
 

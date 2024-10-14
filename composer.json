@@ -1,0 +1,5 @@
+{
+    "require": {
+		"phpclasses/evalmath": ">=1.0.0"
+    }
+}

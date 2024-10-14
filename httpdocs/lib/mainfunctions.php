@@ -1,5 +1,7 @@
 <?php
 
+    register_shutdown_function('documentEndChecks');
+
     /**
      * Im HTML-Header platziert, fügt diese Funktion alle benötigten Libraries in das HTML-Dokument
      * ein.
@@ -328,11 +330,17 @@
      * Log to the Browser Console
      *
      * @param  string $message
+     * @param  boolean $blnError (optional) Default: false (no error) true = error
      * @return void
      * @author Urs Langmeier
      */
-    function consoleLog($message) {
-        echo "<script>console.log('$message');</script>";
+    function consoleLog($message, $blnError = false) {
+        $message = replace($message, "'", "\'");
+        if ( $blnError ) {
+            echo "<script>console.error('$message');</script>";
+        } else {
+            echo "<script>console.log('$message');</script>";
+        }
     }
 
     /**
@@ -778,4 +786,190 @@
         }
     }
 
-    register_shutdown_function('documentEndChecks');
+    function debug($mixed_var) {
+        echo "<pre>";
+        print_r($mixed_var);
+        echo "</pre>";
+    }
+
+    /** kst, ula 28.06.2024
+     * 
+     *  Gibt einen String zwischen einem Open-Tag und einem Close-Tag zurück.
+     * 
+     *  Im Unterschied zu getPartOfString_OpenToClose() ist getStringToCloseTag() strikt.
+     *  Das bedeutet, wenn das schliessende Tag nicht gefunden wird, dann gibt diese Funktion
+     *  hier gar nichts zurück.
+     * 
+     **/
+    function getStringToCloseTag($p_sString, $p_sOpenTag = "{{", $p_sCloseTag = "}}") {
+        // Initiale Positionen und Zähler
+        $startPos = strpos($p_sString, $p_sOpenTag);
+        if ($startPos === false) {
+            return ''; // Kein öffnendes Tag gefunden
+        }
+    
+        $startPos += strlen($p_sOpenTag); // Position direkt nach dem offenen Tag
+        $openTagCount = 1; // Zähler für offene Tags
+        $currentPos = $startPos; // Startposition für die Suche nach schließenden Tags
+    
+        while ($openTagCount > 0) {
+            $nextOpenPos = strpos($p_sString, $p_sOpenTag, $currentPos);
+            $nextClosePos = strpos($p_sString, $p_sCloseTag, $currentPos);
+    
+            if ($nextClosePos === false) {
+                return ''; // Kein schließendes Tag gefunden
+            }
+    
+            if ($nextOpenPos !== false && $nextOpenPos < $nextClosePos) {
+                $openTagCount++; // Ein neues offenes Tag innerhalb der Zeichenkette gefunden
+                $currentPos = $nextOpenPos + strlen($p_sOpenTag);
+            } else {
+                $openTagCount--; // Ein schließendes Tag gefunden
+                $currentPos = $nextClosePos + strlen($p_sCloseTag);
+            }
+        }
+    
+        $endPos = $currentPos - strlen($p_sCloseTag); // Position des letzten schließenden Tags
+    
+        // Extrahieren und Rückgabe der Zeichenkette zwischen den äußersten Tags
+        return substr($p_sString, $startPos, $endPos - $startPos);
+    }
+
+    /**
+     * Gibt aus einem String einen Teilstring zurück, beginnend mit einem öffnenden Tag
+     * und endend mit einem sich schliessenden Tag. Im String verschachtelte Tags werden
+     * im Resultat eingeschlossen, z.B. bei {{select '{{kunde.email}}'}} kann alles
+     * zwischen {{ und }} zurückgegeben werden.
+     * 
+     * Wichtig:
+     * =========
+     * 
+     * Es wird empfohlen, die strikte Variante getStringToCloseTag() zu verwenden.
+     * Denn, wenn das schliessende Tag nicht gefunden wird, dann gibt die strikte Funktion
+     * gar nichts zurück. Und getPartOfString_OpenToClose() gibt in diesem Fall den Text
+     * bis zum Ende des Textes zurück, was zu unerwartetem Resultat führen könnte.
+     *
+     * @param  string    $p_sString    Der Eingabestring.
+     * @param  string    $p_sOpenTag   Dieser Text wird gesucht. Text, der zwischen
+     *                   	        dem Zeichen ab der durch p_sOpenTag gefunden Stelle,
+     *                    	        und der durch p_sCloseTag gefundenen Stelle steht,
+     *                    	        wird zurückgegeben. Wenn p_sOpenTag nicht angegeben ist,
+     *                              wird Text ab dem ersten Zeichen zurückgegeben.
+     * 
+     * @param  string $p_sCloseTag  Wenn Angegeben: Gibt Text nur bis zum Auftreten
+     *                    	        dieses Zeichens zurück oder bis zum Ende des Textes.
+     *                              
+     * @param  bool   $p_blnCaseSensitive Vergleichsmethode:
+     *                                      - True = Case Sensitive
+     *                                      - False = Case Insensitive (Standard)
+     *                              
+     * @return string    Der Text zwischen $p_sOpenTag und $p_sCloseTag
+     * @author Urs Langmeier
+     * 
+     */
+    function getPartOfString_OpenToClose($p_sString, $p_sOpenTag, $p_sCloseTag = "", $p_blnCaseSensitive = false) {
+        $lPos = 0;
+        $lPos2 = 0;
+    
+        if ($p_sString != "") {
+            // Suche das Vorkommen von Find im String:
+            if ($p_sOpenTag == "") {
+                // Wenn der Begin-String nicht angegeben ist, dann
+                // bitte vom ersten Zeichen weg beginnen zu suchen...
+                $lPos = 0;
+            } else {
+                if ($p_blnCaseSensitive) {
+                    // Case sensitive:
+                    $lPos = strpos($p_sString, $p_sOpenTag);
+                } else {
+                    // Case insensitive:
+                    $lPos = stripos($p_sString, $p_sOpenTag);
+                }
+            }
+    
+            if (!($lPos === false)) {
+                if (strlen($p_sCloseTag) > 0) {
+                    // Verschachtelte Tags berücksichtigen:
+                    $openTagCount = 1;
+                    $startPos = $lPos + strlen($p_sOpenTag);
+    
+                    while ($openTagCount > 0 && $startPos < strlen($p_sString)) {
+                        if ($p_blnCaseSensitive) {
+                            $nextOpenPos = strpos($p_sString, $p_sOpenTag, $startPos);
+                            $nextClosePos = strpos($p_sString, $p_sCloseTag, $startPos);
+                        } else {
+                            $nextOpenPos = stripos($p_sString, $p_sOpenTag, $startPos);
+                            $nextClosePos = stripos($p_sString, $p_sCloseTag, $startPos);
+                        }
+    
+                        if ($nextClosePos === false) {
+                            return substr($p_sString, $lPos + strlen($p_sOpenTag));
+                        }
+    
+                        if ($nextOpenPos !== false && $nextOpenPos < $nextClosePos) {
+                            $openTagCount++;
+                            $startPos = $nextOpenPos + strlen($p_sOpenTag);
+                        } else {
+                            $openTagCount--;
+                            $startPos = $nextClosePos + strlen($p_sCloseTag);
+                        }
+                    }
+    
+                    $lPos2 = $startPos - strlen($p_sCloseTag);
+    
+                    if ($openTagCount == 0) {
+                        return substr($p_sString, $lPos + strlen($p_sOpenTag), $lPos2 - ($lPos + strlen($p_sOpenTag)));
+                    } else {
+                        return substr($p_sString, $lPos + strlen($p_sOpenTag));
+                    }
+                } else {
+                    // Ein FindTo ist nicht angegeben - Rest-String zurückgeben:
+                    return substr($p_sString, $lPos + strlen($p_sOpenTag));
+                }
+            } else {
+                // Kein String gefunden! -> Leerstring zurückgeben...
+                return "";
+            }
+        } else {
+            // Kein String da! -> Leerstring zurückgeben...
+            return "";
+        }
+    }
+
+    /**
+     * Formatiert einen Wert als Geldbetrag...
+     *
+     * @param  float $value       Der zu formatierende Wert
+     * @param  mixed $mixed_currency_symbol_OR_round_precision
+     * @return str 
+     * @author Urs Langmeier
+     */
+    function money($value, $mixed_currency_symbol_OR_round_precision = null) {
+        // Wird ein Währungssymbol übergeben?
+        consoleLog("Param2:".$mixed_currency_symbol_OR_round_precision);
+        if ( is_null($mixed_currency_symbol_OR_round_precision) ) {
+            $currency_symbol = "";
+            $round_precision = 2;
+            consoleLog("ohne angabe");
+
+        } elseif (is_numeric($mixed_currency_symbol_OR_round_precision)) {
+            $currency_symbol = "";
+            $round_precision = $mixed_currency_symbol_OR_round_precision;
+            consoleLog("precision: ".$mixed_currency_symbol_OR_round_precision);
+
+        } else {
+            $currency_symbol = $mixed_currency_symbol_OR_round_precision;
+            $round_precision = 2;
+        }
+
+        if ( strlen($currency_symbol) == 1 ) {
+            // € 36.50
+            return $currency_symbol . " ". number_format($value, $round_precision, ',', '.');
+        } elseif ( strlen($currency_symbol) > 1 ) {
+            // 36.50 CHF
+            return number_format($value, $round_precision, ',', '.'). " " . $currency_symbol;
+        } else {
+            // 36.50
+            return number_format($value, $round_precision, ',', '.');
+        }
+    }

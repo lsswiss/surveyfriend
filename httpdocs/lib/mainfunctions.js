@@ -51,11 +51,3 @@ function httpsPost_JSON(url, postData, debug = false)
     });
 }
 
-/**
- * Gibt den Namen vmo Globi aus...
- */
-function globi(name)
-{
-    alert('Hallo ' + name);
-}
-

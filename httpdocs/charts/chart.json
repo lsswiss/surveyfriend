@@ -1,4 +1,11 @@
 [ 
+    { 
+        "results": {
+            "yearlySavings": "money(12 * (( Q1 + Q4 + Q2 + ( Q3 * Q1 * 0.2 )) - (( Q3 * 50 ) + ( Q4 * 0.1 ))))",
+            "youPayMonthly": "money(((Q1)*Q3*0.2)+(Q1+Q2))",
+            "youWouldPay": "money((Q3*50)*12/365,'CHF')"
+        }
+    },
     {
         "background-image": "/assets/bg-blue.png",
         "background": "dark-blend",
@@ -101,8 +108,8 @@
 
     {
         "section":{
-            "title": "Lust auf die kostenlose Probe-Version von aBusiness?",
-            "desc": "Jetzt kostenlos ausprobieren und Geld sparen",
+            "title": "Nicht nur Geld, sondern auch Zeit sparen?",
+            "desc": "Jetzt kostenlos <strong>aBusiness Suite</strong> ausprobieren und Zeit <i>und</i> Geld sparen!",
             "class": "text-center",
             "button": [
                 {
