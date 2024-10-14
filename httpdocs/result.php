@@ -1,6 +1,7 @@
 <?php
 
 use function SurveyFriend\Results\calculateResults;
+use function SurveyFriend\Results\setNumberFormatsInDocument;
 
     require_once('lib/mainfunctions.php');
     require_once('lib/surveyfriend.php');
@@ -17,11 +18,14 @@ use function SurveyFriend\Results\calculateResults;
     $jsonData = file_get_contents($jsonFile);
 
     if (isset($_SESSION["result"]) && is_array($_SESSION["result"])) {
+        // Das JSON ist gültig.
+        // Wir ersetzen nun die Platzhalter in der JSON-Datei durch die Resultate in
+        // der Session.
         foreach ($_SESSION["result"] as $key => $value) {
             consoleLog("`\${$key}`: {$value}");
-            //$jsonData = replace($jsonData, "$".$key, $value);
+
             // Nur ganze Wörter ersetzen:
-            $jsonData = preg_replace('/\$'.$key.'\b/', $value, $jsonData);           
+            $jsonData = preg_replace('/\$'.$key.'\b/', $value, $jsonData);
 
         }
     
@@ -34,10 +38,22 @@ use function SurveyFriend\Results\calculateResults;
     // Da wir nun noch einen Rest an nicht-verarbeiteten Platzhalter in der
     // JSON-Datei haben könnten, ersetzen wir diese durch die Zahlenwerte 0.
     // -> Dies verursacht keine Fehler beim Dekodieren des JSON in ein Array,
-    //    und die Berechnungen werden mit 0 nicht ganz verfälscht in den Charts
-    //    angezeigt.
-    $jsonData = preg_replace('/\$(\w+)/', '0', $jsonData);
+    //    und die Berechnungen werden mit 999999999 offensichtlich verfälscht 
+    //    in den Charts angezeigt, sodass der Benutzer den Fehler im JSON am
+    //    leichtesten erkennen kann.
+    $jsonData = preg_replace('/\$(\w+)/', '999999999', $jsonData);
 
+    // Nummer-Formate:
+    // ----------------
+    // Nun suchen wir die gewünschten Formatierungsfunktionen wie money(), number()
+    // usw., und führen diese auf das Dokument aus mit dem vordefinierten Format
+    // unter numberFormats. So wird z.B. money(1234) zu CHF 1'234.00, oder
+    // decimal(1234) zu 1'234.00.
+    setNumberFormatsInDocument($jsonData);
+
+    // JSON-Daten nun in das definitive Array umwandeln,
+    // mit dem wir arbeiten können:
+    // --------------------------------------------------
     $charts = json_decode($jsonData, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {

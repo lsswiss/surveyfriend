@@ -258,10 +258,18 @@ function calculateResults($chartsJsonFile)
     // welche keine Fehler bei der JSON-Dekodierung verursachen...
     $jsonData = preg_replace('/\$(\w+)/', '12345678', $jsonData);
 
+    // Nummer-Formate:
+    // =================
+    // Nun suchen wir die gewünschten Formatierungsfunktionen wie money(), number()
+    // usw., und führen diese auf das Dokument aus. Denn, auch diese Funktionen
+    // können beim Parsern der JSON-Datei einen Syntax-Fehler hervorrufen:
+    setNumberFormatsInDocument($jsonData);
+
+
     $charts = json_decode($jsonData, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-        $msg = 'Fehler beim Lesen der JSON-Datei <strong>`'. $jsonFile.'`</strong>. Bitte validieren Sie die Datei unter <strong><a href="https://jsonlint.com">https://jsonlint.com</a></strong>. Fehler: <strong>'. json_last_error_msg()."</strong>";
+        $msg = 'Fehler beim Lesen der JSON-Datei <strong>`'. $chartsJsonFile.'`</strong>. Bitte validieren Sie die Datei unter <strong><a href="https://jsonlint.com">https://jsonlint.com</a></strong>. Fehler: <strong>'. json_last_error_msg()."</strong>";
         consoleLog(strip_tags($msg));
         die($msg);
     }
@@ -296,4 +304,101 @@ function calculateResults($chartsJsonFile)
             }
         }
     }
+}
+
+/**
+ * Formatiert eine Zahl im gewünschten, unter chart.json im Pfad "numberFormats" abgelegten Format.
+ * 
+ * @param  array $arSettings   Die Einstellungen für die Formate, wie sie in chart.json definiert sind.
+ *                             Muss den Schlüssel "numberFormats" enthalten, siehe Beispiel unten.
+ * 
+ * @param  string $formatName
+ * @param  float $value
+ * @return string
+ * @author Urs Langmeier
+ * 
+ * @see chart.json
+ *
+ * Inhalt von $arSettings:
+ * 
+ * {
+        "money": {
+                "decimals": 0,
+                "decimalSeparator": ".",
+                "thousandsSeparator": "'",
+                "prefix": "CHF ",
+                "suffix": ".–"
+
+        },
+        "decimal": {
+                "decimals": 2,
+                "decimalSeparator": ".",
+                "thousandsSeparator": "'"
+        },
+        "percent": {
+                "decimals": 0,
+                "decimalSeparator": ".",
+                "thousandsSeparator": "'",
+                "suffix": "%"
+        },
+        "number": {
+                "decimals": 0,
+                "decimalSeparator": ".",
+                "thousandsSeparator": "'"
+        }
+    }
+ * 
+ */
+function numberFormat($arSettings, $format, $value) {
+    if (!isset($arSettings[$format])) {
+        return $value; // Return the value as is if the format is not found
+    }
+
+    $formatSettings = $arSettings[$format];
+    $decimals = $formatSettings['decimals'] ?? 2;
+    $decimalSeparator = $formatSettings['decimalSeparator'] ?? '.';
+    $thousandsSeparator = $formatSettings['thousandsSeparator'] ?? '';
+    $prefix = $formatSettings['prefix'] ?? '';
+    $suffix = $formatSettings['suffix'] ?? '';
+
+    $formattedValue = number_format($value, $decimals, $decimalSeparator, $thousandsSeparator);
+    return $prefix . $formattedValue . $suffix;
+}
+
+/**
+ * Setzt die Nummer-Formate im Dokument. Wie beispielsweise money(1234.56) oder decimal(1234.56).
+ * Die Funktion wird aufgerufen, nachdem die Resultate berechnet wurden.
+ *
+ * @param  string $jsonData  Die JSON-Daten des Dokuments, in welchem die Nummer-Formate
+ *                           umgesetzt werden sollen.
+ * @return void
+ * @author Urs Langmeier
+ */
+function setNumberFormatsInDocument(&$jsonData) {
+    $arSections = json_decode($jsonData, true);
+
+    // Nach dem Schlüssel "numberFormats" suchen:
+    $blnFound = false;
+    $arSettingsNumberFormats = [];
+    foreach ($arSections as $section) {
+        if (isset($section['numberFormats'])) {
+            // Wir sind in der Sektion mit den Nummer-Formaten...
+            $arSettingsNumberFormats = $section['numberFormats'];
+            $blnFound = true;
+            break;
+        }
+    }
+    if ( $blnFound ) {
+        $jsonData = preg_replace_callback('/(\w+)\((\d+(\.\d+)?)\)/'
+                        , function($matches)
+                          use ($arSettingsNumberFormats)
+                        {
+                            return \SurveyFriend\Results\numberFormat
+                                        ($arSettingsNumberFormats
+                                            , $matches[1]
+                                            , $matches[2]);
+                        }, $jsonData);
+    } /* else: Nummerformate nicht definiert im Schlüssel "numberFormats"...
+               -> Das Dokument braucht also keine spezifischen Nummernformate.
+    */
 }
