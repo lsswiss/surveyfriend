@@ -16,7 +16,7 @@
 
 	{
 	  "q": "Welche Software nutzt Du derzeit?",
-	  "desc": "",
+	  "desc": "Oder planst Du zu nutzen...",
 	  "background-image": "assets/abusiness.webp",
 	  "a": {
 		"multioption": [
