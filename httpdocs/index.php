@@ -198,8 +198,8 @@ $question = $survey[$current_question];
                 </script>
 
                 <label for="rangeInput"><?php echo $question['a']['label']; ?></label>
-                <input type="range" id="rangeInput" name="answer" class="form-control range-slider" min="<?php echo $question['a']['range']['min']; ?>" max="<?php echo $question['a']['range']['max']; ?>" step="<?php echo $question['a']['range']['step']; ?>" required>
-                <div class="value-display"><?php echo $question['a']['range']['min']; ?></div>
+                <input type="range" id="rangeInput" name="answer" class="form-control range-slider" min="<?php echo $question['a']['range']['min']; ?>" max="<?php echo $question['a']['range']['max']; ?>" step="<?php echo $question['a']['range']['step']; ?>" value="<?php echo $question['a']['range']['default'] ?? $question['a']['range']['min']; ?>" required>
+                <div class="value-display"><?php echo ($question['a']['range']['prefix'] ?? "") . ($question['a']['range']['default'] ?? $question['a']['range']['min']) . ($question['a']['range']['suffix'] ?? $question['a']['range']['postfix'] ?? ""); ?></div>
             
             <?php elseif (isset($question['a']['fields'])): ?>
                 <?php foreach ($question['a']['fields'] as $field): ?>
