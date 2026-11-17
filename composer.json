@@ -1,5 +1,5 @@
-{
+{    
     "require": {
-		"phpclasses/evalmath": ">=1.0.0"
+        "andileco/eval-math": "^3.0"
     }
 }

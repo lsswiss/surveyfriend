@@ -111,7 +111,7 @@
             "class": "",
 
             "chart": {
-                "type": "line",
+                "type": "bar",
                 "title": null,
                 "data": {
                     "labels": ["Ohne aBusiness", "Mit aBusiness"],

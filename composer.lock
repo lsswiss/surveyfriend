@@ -1,0 +1,65 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "96743c6fdf967f5f16b04a4fe1ba1327",
+    "packages": [
+        {
+            "name": "andileco/eval-math",
+            "version": "3.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/andileco/eval-math.git",
+                "reference": "52ff5728ad51961a630cc957328764cb02ab5c51"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/andileco/eval-math/zipball/52ff5728ad51961a630cc957328764cb02ab5c51",
+                "reference": "52ff5728ad51961a630cc957328764cb02ab5c51",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7 || ^8.0"
+            },
+            "require-dev": {
+                "php-coveralls/php-coveralls": "^2",
+                "phpunit/phpunit": "^5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Andileco\\Util\\EvalMath\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "description": "EvalMath",
+            "keywords": [
+                "EvalMath"
+            ],
+            "support": {
+                "issues": "https://github.com/andileco/eval-math/issues",
+                "source": "https://github.com/andileco/eval-math/tree/3.0.1"
+            },
+            "time": "2022-07-21T21:04:26+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}

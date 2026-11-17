@@ -1,5 +1,15 @@
 <?php
 
+// Alle Ausgaben (z.B. Debug-Meldungen von consoleLog() beim Berechnen
+// der Resultate) puffern, damit garantiert nichts vor dem DOCTYPE
+// ausgegeben wird. Sonst schaltet der Browser in den Quirks-Modus und
+// das Layout von body.charts (Flexbox) bricht: Der Inhalt wird vertikal
+// zentriert und die erste Karte nach oben aus dem sichtbaren Bereich
+// geschoben.
+// Der gepufferte Inhalt wird weiter unten – nach dem DOCTYPE –
+// wieder ausgegeben (siehe $earlyOutput).
+ob_start();
+
 use function SurveyFriend\Results\calculateResults;
 use function SurveyFriend\Results\handleJsonErrors;
 use function SurveyFriend\Results\setNumberFormatsInDocument;
@@ -61,6 +71,12 @@ use function SurveyFriend\Results\setNumberFormatsInDocument;
 
 ?>
 
+<?php
+    // Gepufferte Debug-Ausgaben (siehe oben) aus dem Puffer holen,
+    // damit der DOCTYPE das allererste Element im Dokument bleibt:
+    $earlyOutput = ob_get_clean();
+?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -77,6 +93,11 @@ use function SurveyFriend\Results\setNumberFormatsInDocument;
     </style>
 </head>
 <body class="charts">
+<?php
+    // Jetzt, nach dem DOCTYPE, die zwischenzeitlich angefallenen
+    // Debug-Ausgaben ausgeben:
+    echo $earlyOutput;
+?>
 
 <!-- Debug Section -->
 <?php if ( isset($_GET['debug']) ): ?>
